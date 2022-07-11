@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "django_restframework",
     "boss_raid",
+    "raid_record",
 ]
 
 MIDDLEWARE = [
