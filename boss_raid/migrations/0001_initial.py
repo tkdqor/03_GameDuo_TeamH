@@ -18,7 +18,7 @@ class Migration(migrations.Migration):
                 ('level', models.IntegerField(default=0, verbose_name='레벨')),
                 ('level_clear_score', models.IntegerField(default=0, verbose_name='레벨 클리어점수')),
 
-                ('time_limit', models.IntegerField(default=180, verbose_name='제한시간')),
+                ('time_limit', models.IntegerField(default=0, verbose_name='제한시간')),
             ],
         ),
     ]
