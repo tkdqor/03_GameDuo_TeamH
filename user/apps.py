@@ -1,6 +1,6 @@
 from django.apps import AppConfig
 
 
-class RaidRecordConfig(AppConfig):
+class UserConfig(AppConfig):
     default_auto_field = "django.db.models.BigAutoField"
-    name = "raid_record"
+    name = "user"
