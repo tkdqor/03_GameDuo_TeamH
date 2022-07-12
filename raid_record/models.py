@@ -1,6 +1,7 @@
-from boss_raid.models import BossRaid
 from django.contrib.auth import get_user_model
 from django.db import models
+
+from boss_raid.models import BossRaid
 
 # Create your models here.
 """장고의 기본 User 모델을 불러옵니다."""
@@ -21,4 +22,4 @@ class RaidRecord(models.Model):
     user = models.ForeignKey(to=User, verbose_name="사용자", on_delete=models.CASCADE, related_name="user")
     score = models.IntegerField("획득점수")
     enter_time = models.DateTimeField("시작시간", auto_now_add=True)
-    end_time = models.DateTimeField("종료시간")
+    end_time = models.DateTimeField("종료시간", blank=True, null=True)
