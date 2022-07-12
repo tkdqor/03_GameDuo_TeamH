@@ -12,10 +12,7 @@ class UserAdmin(BaseUserAdmin):
     list_display_links = ("nickname",)
     list_filter = ("nickname",)
     search_fields = ("nickname",)
-    ordering = (
-        "id",
-        "nickname",
-    )
+    ordering = ("nickname",)
 
     fieldsets = (
         (
@@ -44,7 +41,7 @@ class UserAdmin(BaseUserAdmin):
         if obj:
             return ("nickname",)
         else:
-            return ("nickname",)
+            return
 
 
 admin.site.register(UserModel, UserAdmin)
