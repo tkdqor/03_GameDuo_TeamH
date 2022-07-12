@@ -1,6 +1,7 @@
-from boss_raid.models import BossRaid
 from django.contrib.auth import get_user_model
 from django.db import models
+
+from boss_raid.models import BossRaid
 
 # Create your models here.
 """장고의 기본 User 모델을 불러옵니다."""

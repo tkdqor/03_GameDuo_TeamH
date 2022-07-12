@@ -26,7 +26,9 @@ SECRET_KEY = SECRET_KEY
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["*"]
+
+AUTH_USER_MODEL = "user.User"  # app.table 형태
 
 # Application definition
 
@@ -40,6 +42,7 @@ INSTALLED_APPS = [
     "django_restframework",
     "boss_raid",
     "raid_record",
+    "user",
 ]
 
 MIDDLEWARE = [
