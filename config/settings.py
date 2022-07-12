@@ -41,7 +41,6 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "rest_framework",
     "boss_raid",
-    "raid_record",
     "user",
 ]
 
