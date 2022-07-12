@@ -21,4 +21,4 @@ class RaidRecord(models.Model):
     user = models.ForeignKey(to=User, verbose_name="사용자", on_delete=models.CASCADE, related_name="user")
     score = models.IntegerField("획득점수")
     enter_time = models.DateTimeField("시작시간", auto_now_add=True)
-    end_time = models.DateTimeField("종료시간", auto_now=True)
+    end_time = models.DateTimeField("종료시간")
