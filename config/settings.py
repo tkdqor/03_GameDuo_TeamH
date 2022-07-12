@@ -39,7 +39,7 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-    "django_restframework",
+    "rest_framework",
     "boss_raid",
     "raid_record",
     "user",
