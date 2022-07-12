@@ -1,7 +1,5 @@
 from django.db import models
 
-"""Create your models here."""
-
 
 class BossRaid(models.Model):
     """
@@ -14,4 +12,4 @@ class BossRaid(models.Model):
     id = models.BigAutoField(primary_key=True)
     level = models.IntegerField("레벨", default=0)
     level_clear_score = models.IntegerField("레벨 클리어점수", default=0)
-    time_limit = models.IntegerField("제한시간", default=180)
+    time_limit = models.IntegerField("제한시간", default=0)
