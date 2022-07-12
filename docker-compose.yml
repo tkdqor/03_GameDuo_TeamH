@@ -1,0 +1,47 @@
+version: '3.4'
+
+services:
+  backend:
+    build: .
+    container_name: backend
+    entrypoint: sh -c "pipenv run python manage.py collectstatic --no-input && pipenv run uwsgi --ini uwsgi.ini"
+    ports:
+      - 8000:8000
+    volumes:
+      - ./:/app/
+
+    depends_on:
+      - mysql
+
+    restart: always
+
+  mysql:
+    image: 'bitnami/mysql:5.7.38-debian-11-r9'
+    container_name: mysql
+    ports:
+      - 3306:3306
+    volumes:
+      - ../mysql:/bitnami/mysql/data
+    environment:
+      #- ALLOW_EMPTY_PASSWORD=yes
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+      - MYSQL_DATABASE=game_duo
+      - MYSQL_USER=teamH
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD}
+
+    restart: always
+
+  nginx:
+    image: nginx
+    container_name: nginx
+    ports:
+      - 80:80
+    volumes:
+      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
+      - ./static/:/static/
+
+    depends_on:
+      - backend
+
+    restart: always
+
