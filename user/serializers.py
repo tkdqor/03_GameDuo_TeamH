@@ -3,6 +3,19 @@ from rest_framework import serializers
 from user.models import User as UserModel
 
 
+class UserListSerializer(serializers.ModelSerializer):
+    """
+    Assignee : 훈희
+
+    유저리스트 serializer 입니다.
+
+    """
+
+    class Meta:
+        model = UserModel
+        fields = ["id", "nickname"]
+
+
 class UserSigninSerializer(serializers.ModelSerializer):
     """
     Assignee : 훈희
@@ -49,7 +62,7 @@ class UserSignupSerializer(serializers.ModelSerializer):
 
         user = UserModel(**validated_data)
 
-        ''' pbkdf2 알고리즘 방식으로 비밀번호 암호화 '''
+        """ pbkdf2 알고리즘 방식으로 비밀번호 암호화 """
         user.set_password(password)
         user.save()
 

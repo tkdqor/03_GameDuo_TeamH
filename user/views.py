@@ -1,11 +1,11 @@
 from django.contrib.auth import authenticate, login
 from rest_framework import status
-from rest_framework.permissions import AllowAny
+from rest_framework.permissions import AllowAny, IsAdminUser
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from user.models import User as UserModel
-from user.serializers import UserSigninSerializer, UserSignupSerializer
+from user.serializers import UserListSerializer, UserSigninSerializer, UserSignupSerializer
 
 
 # /users/signup
@@ -50,20 +50,6 @@ class UserSigninApiView(APIView):
     permission_classes = [AllowAny]
     user_serializer = UserSigninSerializer
 
-    def get(self, request):
-        """
-        Assignee : 훈희
-
-        login과 같은 url을 이용하여 전체 조회 기능을 구현
-        플레이어 전체 목록이 나옵니다.
-        기존 설계상에 admin 유저만 해당 내용은 볼 수 있게 해야하기때문에
-
-        """
-        all_user = UserModel.objects.all().order_by("last_login")
-        serializer = UserSigninSerializer(all_user, many=True)
-
-        return Response(serializer.data, status=status.HTTP_200_OK)
-
     def post(self, request):
         nickname = request.data.get("nickname", "")
         password = request.data.get("password", "")
@@ -74,3 +60,21 @@ class UserSigninApiView(APIView):
 
         login(request, user)
         return Response({"message": "로그인 성공!!"}, status=status.HTTP_200_OK)
+
+
+class UserListAPIView(APIView):
+    permission_classes = [IsAdminUser]
+    user_serializer = UserListSerializer
+
+    def get(self, request):
+        """
+        Assignee : 훈희
+
+        플레이어 전체 목록이 나옵니다.
+        해당 내용은 admin 유저만 확인 가능합니다.
+
+        """
+        all_user = UserModel.objects.all().order_by("last_login")
+        serializer = UserSigninSerializer(all_user, many=True)
+
+        return Response(serializer.data, status=status.HTTP_200_OK)
