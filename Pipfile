@@ -12,6 +12,10 @@ flake8 = "*"
 isort = "*"
 requests = "*"
 djangorestframework-simplejwt = "*"
+redis = "*"
+django-redis = "*"
+tzdata = "*"
+mysqlclient = "*"
 
 [dev-packages]
 
