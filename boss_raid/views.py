@@ -88,7 +88,17 @@ class BossRaidEnterAPIView(APIView):
 
 # url : PATCH api/v1/bossRaid/end
 class BossRaidEndAPIView(APIView):
+    """
+    Assignee : 민지
+
+    보스레이드 종료 api view 입니다.
+    """
+
     def patch(self, request):
+        """
+        get_score_and_end_time 함수는 utils.py에 정의되어 있습니다.
+        과제 요구사항에 response 값이 없기 때문에 204 status code를 사용합니다.
+        """
         record_id = request.data["recordId"]
         raid_record = get_object_or_404(RaidRecord, pk=record_id)
         data = get_score_and_end_time(record_id)

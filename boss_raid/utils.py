@@ -9,7 +9,7 @@ def get_score_and_end_time(record):
     Assignee : 민지
 
     클라이언트가 없는 관계로 생성한 함수입니다.
-    게임을 플레이한 시간과, 획득 점수를 계산합니다.
+    유저가 플레이 후, 획득 점수와 종료 시간을 구하는 함수입니다.
     """
     raid_record = RaidRecord.objects.get(id=record)
 
