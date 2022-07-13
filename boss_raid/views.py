@@ -86,7 +86,7 @@ class BossRaidEnterAPIView(APIView):
             return Response({"isEntered": "True", "raidRecordId": new_raid_record.id}, status=status.HTTP_201_CREATED)
 
 
-# url : api/v1/bossRaid/end
+# url : PATCH api/v1/bossRaid/end
 class BossRaidEndAPIView(APIView):
     def get(self, request):
         record_id = request.GET.get("record_id", 0)
