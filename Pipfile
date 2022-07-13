@@ -13,6 +13,8 @@ isort = "*"
 requests = "*"
 redis = "*"
 django-redis = "*"
+tzdata = "*"
+mysqlclient = "*"
 
 [dev-packages]
 
