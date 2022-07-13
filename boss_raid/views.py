@@ -32,8 +32,8 @@ class BossRaidStatusAPIView(APIView):
         """
         playing_records = RaidRecord.objects.filter(end_time=None)
         now = timezone.now()
-        limit_time = 180
-        playing_record = playing_records.filter(enter_time__gte=now - datetime.timedelta(seconds=limit_time))
+        time_limit = 180
+        playing_record = playing_records.filter(enter_time__gte=now - datetime.timedelta(seconds=time_limit))
         serializer = RaidRecordModelSerializer(playing_record, many=True)
 
         if playing_record:
@@ -59,8 +59,8 @@ class BossRaidEnterAPIView(APIView):
         print(f"user: {request.user}")
         playing_records = RaidRecord.objects.filter(end_time=None)
         now = timezone.now()
-        limit_time = 180
-        playing_record = playing_records.filter(enter_time__gte=now - datetime.timedelta(seconds=limit_time))
+        time_limit = 180
+        playing_record = playing_records.filter(enter_time__gte=now - datetime.timedelta(seconds=time_limit))
 
         if playing_record:
             return Response({"isEntered": "False"}, status=status.HTTP_200_OK)
