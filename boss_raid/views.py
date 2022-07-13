@@ -1,6 +1,6 @@
-# from django.shortcuts import render
 import datetime
 
+from django.shortcuts import get_object_or_404
 from django.utils import timezone
 from rest_framework import status
 from rest_framework.response import Response
@@ -88,8 +88,13 @@ class BossRaidEnterAPIView(APIView):
 
 # url : PATCH api/v1/bossRaid/end
 class BossRaidEndAPIView(APIView):
-    def get(self, request):
-        record_id = request.GET.get("record_id", 0)
+    def patch(self, request):
+        record_id = request.data["recordId"]
+        raid_record = get_object_or_404(RaidRecord, pk=record_id)
         data = get_score_and_endtime(record_id)
 
-        return Response(data)
+        serializer = RaidRecordModelSerializer(raid_record, data=data, partial=True)
+        if serializer.is_valid(raise_exception=True):
+            serializer.save()
+
+        return Response(status=status.HTTP_204_NO_CONTENT)
