@@ -4,16 +4,17 @@ from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
+from user.models import User as UserModel
 from user.serializers import UserSigninSerializer, UserSignupSerializer
 
 
 # /users/signup
-class UserSiginupApiView(APIView):
+class UserSignupApiView(APIView):
     """
     Assignee : 훈희
 
     회원가입 view 입니다.
-    회원가입시 입력 data 타입은 json 구조는 밑과 같습니다.
+    회원가입시 입력 data 타입 json 구조는 밑과 같습니다.
     {
         "nickname" : "test1",
         "password" : "root1234"
@@ -23,15 +24,13 @@ class UserSiginupApiView(APIView):
     permission_classes = [AllowAny]
 
     def post(self, request):
-        user_serializer = UserSignupSerializer(data=request.data)
+        serializer = UserSignupSerializer(data=request.data)
 
-        if user_serializer.is_valid(raise_exception=True):
-            user_serializer.save()
+        if serializer.is_valid():
+            serializer.save()
             return Response({"messages": "가입 성공"}, status=status.HTTP_200_OK)
-
         else:
-            # print(serializers.errors)
-            return Response({"messages": "가입 실패"})
+            return Response({"messages": "가입 실패"}, status=status.HTTP_400_BAD_REQUEST)
 
 
 # /users/signin
@@ -40,7 +39,7 @@ class UserSigninApiView(APIView):
     Assignee : 훈희
 
     로그인과 회원 전체 조회, 회원 단건 조회 기능입니다.
-    로그인시 입력 data 타입은 json 구조는 밑과 같습니다.
+    로그인시 입력 data 타입 json 구조는 밑과 같습니다.
     {
         "nickname" : "test1",
         "password" : "root1234"
@@ -52,9 +51,18 @@ class UserSigninApiView(APIView):
     user_serializer = UserSigninSerializer
 
     def get(self, request):
-        user = request.user
+        """
+        Assignee : 훈희
 
-        return Response(UserSigninSerializer(user).data, status=status.HTTP_200_OK)
+        login과 같은 url을 이용하여 전체 조회 기능을 구현
+        플레이어 전체 목록이 나옵니다.
+        기존 설계상에 admin 유저만 해당 내용은 볼 수 있게 해야하기때문에
+
+        """
+        all_user = UserModel.objects.all().order_by("last_login")
+        serializer = UserSigninSerializer(all_user, many=True)
+
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
     def post(self, request):
         nickname = request.data.get("nickname", "")

@@ -8,6 +8,8 @@ class UserCreationForm(forms.ModelForm):
     """
     Assignee : 훈희
 
+    BaseUserAdmin의 UserCreationForm을 오버라이딩 하기 위함
+
     custom 유저 모델을 이용하여 admin에서 유저를 생성하기
     위하여 작성 되어야 하는 form입니다.
     password1과 apssword2를 가지고 있으며 유저 모델에 정의한
@@ -44,6 +46,8 @@ class UserCreationForm(forms.ModelForm):
 class UserChangeForm(forms.ModelForm):
     """
     Assignee : 훈희
+
+    BaseUserAdmin의 UserChangeForm 오버라이딩 하기 위함
 
     사용자 암호를 ReadOnlyPasswordHashField() 가져와서 화면에 표시할
     예정이며 해당 내용은 확인만 가능합니다.

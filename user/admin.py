@@ -10,7 +10,10 @@ class UserAdmin(BaseUserAdmin):
     """
     Assignee : 훈희
 
-    커스텀된 유저 모델을 admin에서 사용하기 위한 내용입니다.
+    Custom된 유저 모델 사용을 위한 admin Custom
+    form과 사용자 add_form을 custom한 폼을 이용한 것으로 변경
+
+    장고에서 기본으로 제공하는 Group은 사용하지 않도록 설정
 
     """
 
