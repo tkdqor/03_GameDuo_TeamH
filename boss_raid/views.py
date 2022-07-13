@@ -10,6 +10,7 @@ from user.models import User
 
 from .models import BossRaid, RaidRecord
 from .serializers import RaidRecordModelSerializer
+from .utils import get_score_and_endtime
 
 
 # url : GET api/v1/bossRaid
@@ -83,3 +84,12 @@ class BossRaidEnterAPIView(APIView):
             new_raid_record.save()
 
             return Response({"isEntered": "True", "raidRecordId": new_raid_record.id}, status=status.HTTP_201_CREATED)
+
+
+# url : api/v1/bossRaid/end
+class BossRaidEndAPIView(APIView):
+    def get(self, request):
+        record_id = request.GET.get("record_id", 0)
+        data = get_score_and_endtime(record_id)
+
+        return Response(data)
