@@ -11,6 +11,8 @@ black = "*"
 flake8 = "*"
 isort = "*"
 requests = "*"
+redis = "*"
+django-redis = "*"
 
 [dev-packages]
 
