@@ -1,47 +1,37 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
+from django.contrib.auth.models import Group
 
-from .models import User as UserModel
+from .forms import UserChangeForm, UserCreationForm
+from .models import User
 
 
 class UserAdmin(BaseUserAdmin):
-    list_display = (
-        "id",
-        "nickname",
+    """
+    Assignee : 훈희
+
+    Custom된 유저 모델 사용을 위한 admin Custom
+    form과 사용자 add_form을 custom한 폼을 이용한 것으로 변경
+
+    장고에서 기본으로 제공하는 Group은 사용하지 않도록 설정
+
+    """
+
+    form = UserChangeForm
+    add_form = UserCreationForm
+
+    list_display = ("nickname", "is_admin")
+    list_filter = ("is_admin",)
+    fieldsets = (
+        (None, {"fields": ("nickname", "password")}),
+        ("Permissions", {"fields": ("is_admin",)}),
     )
-    list_display_links = ("nickname",)
-    list_filter = ("nickname",)
+
+    add_fieldsets = ((None, {"classes": ("wide",), "fields": ("nickname", "password1", "password2")}),)
     search_fields = ("nickname",)
     ordering = ("nickname",)
-
-    fieldsets = (
-        (
-            "info",
-            {
-                "fields": (
-                    "nickname",
-                    "password",
-                )
-            },
-        ),
-        (
-            "Permissions",
-            {
-                "fields": (
-                    "is_admin",
-                    "is_active",
-                )
-            },
-        ),
-    )
-
-    filter_horizontal = []
-
-    def get_readonly_fields(self, request, obj=None):
-        if obj:
-            return ("nickname",)
-        else:
-            return
+    filter_horizontal = ()
 
 
-admin.site.register(UserModel, UserAdmin)
+admin.site.register(User, UserAdmin)
+admin.site.unregister(Group)

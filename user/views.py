@@ -1,19 +1,20 @@
 from django.contrib.auth import authenticate, login
 from rest_framework import status
-from rest_framework.permissions import AllowAny
+from rest_framework.permissions import AllowAny, IsAdminUser
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from user.serializers import UserSigninSerializer, UserSignupSerializer
+from user.models import User as UserModel
+from user.serializers import UserListSerializer, UserSigninSerializer, UserSignupSerializer
 
 
 # /users/signup
-class UserSiginupApiView(APIView):
+class UserSignupApiView(APIView):
     """
     Assignee : 훈희
 
     회원가입 view 입니다.
-    회원가입시 입력 data 타입은 json 구조는 밑과 같습니다.
+    회원가입시 입력 data 타입 json 구조는 밑과 같습니다.
     {
         "nickname" : "test1",
         "password" : "root1234"
@@ -23,15 +24,13 @@ class UserSiginupApiView(APIView):
     permission_classes = [AllowAny]
 
     def post(self, request):
-        user_serializer = UserSignupSerializer(data=request.data)
+        serializer = UserSignupSerializer(data=request.data)
 
-        if user_serializer.is_valid(raise_exception=True):
-            user_serializer.save()
+        if serializer.is_valid():
+            serializer.save()
             return Response({"messages": "가입 성공"}, status=status.HTTP_200_OK)
-
         else:
-            # print(serializers.errors)
-            return Response({"messages": "가입 실패"})
+            return Response({"messages": "가입 실패"}, status=status.HTTP_400_BAD_REQUEST)
 
 
 # /users/signin
@@ -40,7 +39,7 @@ class UserSigninApiView(APIView):
     Assignee : 훈희
 
     로그인과 회원 전체 조회, 회원 단건 조회 기능입니다.
-    로그인시 입력 data 타입은 json 구조는 밑과 같습니다.
+    로그인시 입력 data 타입 json 구조는 밑과 같습니다.
     {
         "nickname" : "test1",
         "password" : "root1234"
@@ -50,11 +49,6 @@ class UserSigninApiView(APIView):
 
     permission_classes = [AllowAny]
     user_serializer = UserSigninSerializer
-
-    def get(self, request):
-        user = request.user
-
-        return Response(UserSigninSerializer(user).data, status=status.HTTP_200_OK)
 
     def post(self, request):
         nickname = request.data.get("nickname", "")
@@ -66,3 +60,21 @@ class UserSigninApiView(APIView):
 
         login(request, user)
         return Response({"message": "로그인 성공!!"}, status=status.HTTP_200_OK)
+
+
+class UserListAPIView(APIView):
+    permission_classes = [IsAdminUser]
+    user_serializer = UserListSerializer
+
+    def get(self, request):
+        """
+        Assignee : 훈희
+
+        플레이어 전체 목록이 나옵니다.
+        해당 내용은 admin 유저만 확인 가능합니다.
+
+        """
+        all_user = UserModel.objects.all().order_by("last_login")
+        serializer = UserSigninSerializer(all_user, many=True)
+
+        return Response(serializer.data, status=status.HTTP_200_OK)
