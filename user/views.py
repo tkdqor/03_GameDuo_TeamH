@@ -3,7 +3,9 @@ from rest_framework import status
 from rest_framework.permissions import AllowAny, IsAdminUser
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from rest_framework_simplejwt.views import TokenObtainPairView
 
+from user.jwt_claim_serializer import GameTokenObtainPairSerializer
 from user.models import User as UserModel
 from user.serializers import UserListSerializer, UserSigninSerializer, UserSignupSerializer
 
@@ -79,3 +81,8 @@ class UserListAPIView(APIView):
         serializer = UserSigninSerializer(all_user, many=True)
 
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+# /api/gametoken
+class GameTokenObtainPairView(TokenObtainPairView):
+    serializer_class = GameTokenObtainPairSerializer
