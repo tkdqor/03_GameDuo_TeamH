@@ -16,6 +16,8 @@ redis = "*"
 django-redis = "*"
 tzdata = "*"
 mysqlclient = "*"
+pytest = "*"
+pytest-django = "*"
 
 [dev-packages]
 
