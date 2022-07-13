@@ -3,7 +3,7 @@ from rest_framework.serializers import ModelSerializer
 from .models import RaidRecord
 
 
-class RaidRecordModelSeiralizer(ModelSerializer):
+class RaidRecordModelSerializer(ModelSerializer):
     """
     Assignee : 민지
 
