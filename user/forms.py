@@ -12,7 +12,7 @@ class UserCreationForm(forms.ModelForm):
 
     custom 유저 모델을 이용하여 admin에서 유저를 생성하기
     위하여 작성 되어야 하는 form입니다.
-    password1과 apssword2를 가지고 있으며 유저 모델에 정의한
+    password1과 password2를 가지고 있으며 유저 모델에 정의한
     nickname을 가지고 있습니다.
 
     clean_password2 이용하여 password1과 password2가 일치하는지 검증합니다.
