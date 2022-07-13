@@ -62,6 +62,7 @@ class UserSigninApiView(APIView):
         return Response({"message": "로그인 성공!!"}, status=status.HTTP_200_OK)
 
 
+# /users/
 class UserListAPIView(APIView):
     permission_classes = [IsAdminUser]
     user_serializer = UserListSerializer
