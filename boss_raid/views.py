@@ -7,7 +7,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from .models import RaidRecord
-from .serializers import RaidRecordModelSeiralizer
+from .serializers import RaidRecordModelSerializer
 
 
 # url : GET api/v1/bossRaid
@@ -32,7 +32,7 @@ class BossRaidStatusAPIView(APIView):
         now = timezone.now()
         limit_time = 180
         playing_record = playing_records.filter(enter_time__gte=now - datetime.timedelta(seconds=limit_time))
-        serializer = RaidRecordModelSeiralizer(playing_record, many=True)
+        serializer = RaidRecordModelSerializer(playing_record, many=True)
 
         if playing_record:
             raid_record = serializer.data[0]
