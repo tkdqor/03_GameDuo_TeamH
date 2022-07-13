@@ -10,7 +10,7 @@ from user.models import User
 
 from .models import BossRaid, RaidRecord
 from .serializers import RaidRecordModelSerializer
-from .utils import get_score_and_endtime
+from .utils import get_score_and_end_time
 
 
 # url : GET api/v1/bossRaid
@@ -91,7 +91,7 @@ class BossRaidEndAPIView(APIView):
     def patch(self, request):
         record_id = request.data["recordId"]
         raid_record = get_object_or_404(RaidRecord, pk=record_id)
-        data = get_score_and_endtime(record_id)
+        data = get_score_and_end_time(record_id)
 
         serializer = RaidRecordModelSerializer(raid_record, data=data, partial=True)
         if serializer.is_valid(raise_exception=True):

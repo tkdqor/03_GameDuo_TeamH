@@ -4,7 +4,7 @@ import random
 from .models import BossRaid, RaidRecord
 
 
-def get_score_and_endtime(record):
+def get_score_and_end_time(record):
     """
     Assignee : 민지
 
@@ -24,9 +24,9 @@ def get_score_and_endtime(record):
     level_clear_score = boss_raid.level_clear_score
     time_limit = boss_raid.time_limit
 
-    random_score = random.randint(0, 20)
+    random_score = random.randint(0, level_clear_score)
 
-    if random_score <= 10:
+    if random_score <= level_clear_score // 2:
         score = 0
         end_time = enter_time + datetime.timedelta(seconds=time_limit)
         return {"score": score, "end_time": end_time}
