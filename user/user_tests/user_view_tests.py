@@ -1,7 +1,7 @@
 from django.test import TestCase
 from django.urls import resolve
 
-from user.views import UserSiginupApiView, UserSigninApiView
+from user.views import UserSigninApiView, UserSignupApiView
 
 
 class UserViewTestCase(TestCase):
@@ -15,20 +15,20 @@ class UserViewTestCase(TestCase):
     def test_url_resolves_to_sign_up_view(self):
         """sign_up url과 view 매칭 테스트"""
 
-        found = resolve("/user/signup")
+        found = resolve("/users/signup")
 
-        self.assertEqual(found.func.__name__, UserSiginupApiView.as_view().__name__)
+        self.assertEqual(found.func.__name__, UserSignupApiView.as_view().__name__)
 
     def test_url_resolves_to_sign_in_view(self):
         """sign_in url과 view 매칭 테스트"""
 
-        found = resolve("/user/signin")
+        found = resolve("/users/signin")
 
         self.assertEqual(found.func.__name__, UserSigninApiView.as_view().__name__)
 
     def test_url_resolves_to_users_view(self):
         """회원 전체 조회 url과 view 매칭 테스트"""
 
-        found = resolve("/user/")
+        found = resolve("/users/")
 
         self.assertEqual(found.func.__name__, UserSigninApiView.as_view().__name__)
