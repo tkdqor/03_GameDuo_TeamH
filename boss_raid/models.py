@@ -28,7 +28,7 @@ class RaidRecord(models.Model):
     id = models.BigAutoField(primary_key=True)
     user = models.ForeignKey(to=User, verbose_name="사용자", on_delete=models.CASCADE, related_name="user")
     level = models.IntegerField("레벨", default=0)
-    score = models.IntegerField("획득점수", blank=True, null=True)
+    score = models.IntegerField("획득점수", blank=True, null=True, default=0)
     enter_time = models.DateTimeField("시작시간", auto_now_add=True)
     end_time = models.DateTimeField("종료시간", blank=True, null=True)
     level_clear_score = models.IntegerField("레벨 클리어점수", default=0)
