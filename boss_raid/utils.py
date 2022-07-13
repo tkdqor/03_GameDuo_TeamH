@@ -1,6 +1,8 @@
 import datetime
 import random
 
+from django.utils import timezone
+
 from .models import BossRaid, RaidRecord
 
 
@@ -35,3 +37,20 @@ def get_score_and_end_time(record):
         play_time = ((time_limit // level_clear_score) * score) - 1
         end_time = enter_time + datetime.timedelta(seconds=play_time)
         return {"score": score, "end_time": end_time}
+
+
+def get_playing_records():
+    """
+    Assignee : 민지
+
+    현재 게임을 플레이 하고 있는 레이드 레코드가 있는지 확인하기 위해 필요한 함수 입니다.
+    end_time 값이 없는 레코드들을 모두 불러옵니다.
+    그중에서 현재 시각을 기준으로 enter_time이 limit_time보다 이전인 아닌 기록들을 return 합니다.
+
+    time_limit은 추후 Redis에서 데이터를 가져오는 코드로 리팩토링 할 예정입니다.
+    """
+    playing_records = RaidRecord.objects.filter(end_time=None)
+    now = timezone.now()
+    time_limit = 180
+    playing_record = playing_records.filter(enter_time__gte=now - datetime.timedelta(seconds=time_limit))
+    return playing_record
