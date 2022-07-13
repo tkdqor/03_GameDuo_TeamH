@@ -18,14 +18,14 @@ class UserViewTestCase(TestCase):
         found = resolve("/user/signup")
 
         self.assertEqual(found.func.__name__, UserSiginupApiView.as_view().__name__)
-    
+
     def test_url_resolves_to_sign_in_view(self):
         """sign_in url과 view 매칭 테스트"""
 
         found = resolve("/user/signin")
 
         self.assertEqual(found.func.__name__, UserSigninApiView.as_view().__name__)
-    
+
     def test_url_resolves_to_users_view(self):
         """회원 전체 조회 url과 view 매칭 테스트"""
 
