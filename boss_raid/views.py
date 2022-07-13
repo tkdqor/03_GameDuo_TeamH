@@ -9,7 +9,7 @@ from rest_framework.views import APIView
 from user.models import User
 
 from .models import BossRaid, RaidRecord
-from .serializers import RaidRecordModelSeiralizer
+from .serializers import RaidRecordModelSerializer
 
 
 # url : GET api/v1/bossRaid
@@ -34,7 +34,7 @@ class BossRaidStatusAPIView(APIView):
         now = timezone.now()
         limit_time = 180
         playing_record = playing_records.filter(enter_time__gte=now - datetime.timedelta(seconds=limit_time))
-        serializer = RaidRecordModelSeiralizer(playing_record, many=True)
+        serializer = RaidRecordModelSerializer(playing_record, many=True)
 
         if playing_record:
             raid_record = serializer.data[0]
@@ -56,6 +56,7 @@ class BossRaidEnterAPIView(APIView):
         보스레이드 시작 가능한 상태인지 확인하고, 시작 가능하다면 새로운 RaidRecord를 생성합니다.
         보스레이드 상태조회 api view 와 겹치는 코드는 추후에 리팩토링할 예정입니다.
         """
+        print(f"user: {request.user}")
         playing_records = RaidRecord.objects.filter(end_time=None)
         now = timezone.now()
         limit_time = 180
