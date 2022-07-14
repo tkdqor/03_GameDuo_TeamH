@@ -43,6 +43,7 @@ class LoginView(APIView):
 
     post : 로그인
     로그인 할때 access token과 refresh token을 함께 가져옴
+
     로그인시 입력 data 타입 json 구조는 밑과 같습니다.
     {
         "nickname" : "test1",

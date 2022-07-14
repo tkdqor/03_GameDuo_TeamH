@@ -25,6 +25,13 @@ class GameTokenObtainPairSerializer(TokenObtainPairSerializer):
 
 
 class RefreshTokenSerializer(serializers.Serializer):
+    """
+    Assignee : 훈희
+
+    로그아웃시 토큰 반납을 위한 시리얼라이저입니다.
+
+    """
+
     refresh = serializers.CharField()
 
     default_error_messages = {"bad_token": _("Token is invalid or expired")}
