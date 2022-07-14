@@ -75,6 +75,8 @@ class UserSignInViewTestCase(APITestCase):
         self.nickname = "sangbaek"
         self.password = "123456"
         self.user = User.objects.create_user(self.nickname, self.password)
+        self.client = APIClient()
+        self.client.force_authenticate(self.user)
 
     def test_authentication(self):
         """로그인 테스트"""
