@@ -1,6 +1,6 @@
-# from django.shortcuts import render
 import datetime
 
+from django.shortcuts import get_object_or_404
 from django.utils import timezone
 from rest_framework import status
 from rest_framework.response import Response
@@ -10,6 +10,7 @@ from user.models import User
 
 from .models import BossRaid, RaidRecord
 from .serializers import RaidRecordModelSerializer
+from .utils import get_score_and_end_time
 
 
 # url : GET api/v1/bossRaid
@@ -32,8 +33,8 @@ class BossRaidStatusAPIView(APIView):
         """
         playing_records = RaidRecord.objects.filter(end_time=None)
         now = timezone.now()
-        limit_time = 180
-        playing_record = playing_records.filter(enter_time__gte=now - datetime.timedelta(seconds=limit_time))
+        time_limit = 180
+        playing_record = playing_records.filter(enter_time__gte=now - datetime.timedelta(seconds=time_limit))
         serializer = RaidRecordModelSerializer(playing_record, many=True)
 
         if playing_record:
@@ -59,8 +60,8 @@ class BossRaidEnterAPIView(APIView):
         print(f"user: {request.user}")
         playing_records = RaidRecord.objects.filter(end_time=None)
         now = timezone.now()
-        limit_time = 180
-        playing_record = playing_records.filter(enter_time__gte=now - datetime.timedelta(seconds=limit_time))
+        time_limit = 180
+        playing_record = playing_records.filter(enter_time__gte=now - datetime.timedelta(seconds=time_limit))
 
         if playing_record:
             return Response({"isEntered": "False"}, status=status.HTTP_200_OK)
@@ -83,3 +84,27 @@ class BossRaidEnterAPIView(APIView):
             new_raid_record.save()
 
             return Response({"isEntered": "True", "raidRecordId": new_raid_record.id}, status=status.HTTP_201_CREATED)
+
+
+# url : PATCH api/v1/bossRaid/end
+class BossRaidEndAPIView(APIView):
+    """
+    Assignee : 민지
+
+    보스레이드 종료 api view 입니다.
+    """
+
+    def patch(self, request):
+        """
+        get_score_and_end_time 함수는 utils.py에 정의되어 있습니다.
+        과제 요구사항에 response 값이 없기 때문에 204 status code를 사용합니다.
+        """
+        record_id = request.data["recordId"]
+        raid_record = get_object_or_404(RaidRecord, pk=record_id)
+        data = get_score_and_end_time(record_id)
+
+        serializer = RaidRecordModelSerializer(raid_record, data=data, partial=True)
+        if serializer.is_valid(raise_exception=True):
+            serializer.save()
+
+        return Response(status=status.HTTP_204_NO_CONTENT)
