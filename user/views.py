@@ -40,7 +40,9 @@ class UserSigninApiView(APIView):
     """
     Assignee : 훈희
 
-    로그인과 회원 전체 조회, 회원 단건 조회 기능입니다.
+    post : 로그인
+
+    get : 회원 단건 조회 기능입니다.
     로그인시 입력 data 타입 json 구조는 밑과 같습니다.
     {
         "nickname" : "test1",
@@ -50,7 +52,6 @@ class UserSigninApiView(APIView):
     """
 
     permission_classes = [AllowAny]
-    user_serializer = UserSigninSerializer
 
     def post(self, request):
         nickname = request.data.get("nickname", "")
@@ -60,8 +61,23 @@ class UserSigninApiView(APIView):
         if not user:
             return Response({"error": "존재하지 않는 계정이거나 패스워드가 일치하지 않습니다."}, status=status.HTTP_401_UNAUTHORIZED)
 
+        user_serializer = UserSigninSerializer(user)
+        token = GameTokenObtainPairSerializer.get_token(user)
+        refresh_token = str(token)
+        access_token = str(token.access_token)
+        response = Response(
+            {
+                "user": user_serializer.data,
+                "message": "로그인 성공!!",
+                "token": {
+                    "access": access_token,
+                    "refresh": refresh_token,
+                },
+            },
+            status=status.HTTP_200_OK,
+        )
         login(request, user)
-        return Response({"message": "로그인 성공!!"}, status=status.HTTP_200_OK)
+        return response
 
     def delete(self, request):
         user = request.user
