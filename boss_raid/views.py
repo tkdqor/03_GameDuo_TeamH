@@ -58,7 +58,7 @@ class BossRaidEnterAPIView(APIView):
             BossRaid에서 level_score_limit과 time_limit을 가져오는 부분은,
             추후에 S3 데이터를 캐싱한 Redis에서 가져오는 코드로 수정될 예정입니다.
             """
-            boss_raid = BossRaid.objects.get(level=level)
+            boss_raid = get_object_or_404(BossRaid, level=level)
             level_clear_score = boss_raid.level_clear_score
             time_limit = boss_raid.time_limit
 
@@ -70,6 +70,7 @@ class BossRaidEnterAPIView(APIView):
                 return Response(
                     {"isEntered": "True", "raidRecordId": serializer.data["id"]}, status=status.HTTP_201_CREATED
                 )
+            return Response({"message": "게임을 시작할 수 없습니다."}, status=status.HTTP_404_NOT_FOUND)
 
 
 # url : PATCH api/v1/bossRaid/end
