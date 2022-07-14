@@ -92,6 +92,21 @@ class LoginView(APIView):
 
 # /users/logout
 class LogoutView(GenericAPIView):
+    """
+     Assignee : 훈희
+
+     post : 로그아웃
+     로그아웃 하면서 토큰을 같이 반납합니다.
+     기존의 delete method를 사용하지 않으며 post 방식으로 refresh token을
+     보내주게 됩니다.
+
+     로그인시 입력 data 타입 json 구조는 밑과 같습니다.
+    {
+       "refresh": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTY1NzkwMzY5MywiaWF0IjoxNjU3ODE3MjkzLCJqdGkiOiJkMjdiMGUxNDU1NTc0NWRjYWRiOTU4YzA1YjA4ZGEzNiIsInVzZXJfaWQiOjgsImlkIjo4LCJuaWNrbmFtZSI6InRlc3Q0MiJ9.iqLPbGoFxaFbp0yXvsKjBwgT7EF29I6URi7O05j2YVg"
+    }
+
+    """
+
     serializer_class = RefreshTokenSerializer
     permission_classes = [IsAuthenticated]
 
