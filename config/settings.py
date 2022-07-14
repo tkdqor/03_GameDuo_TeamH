@@ -20,7 +20,8 @@ APPEND_SLASH = False
 ALLOWED_HOSTS = ["*"]
 
 CSRF_TRUSTED_ORIGINS = ["http://13.124.49.137"]
-CORS_ORIGIN_WHITELIST = ["http://13.124.49.137"]
+CORS_ALLOWED_ORIGINS = ["http://13.124.49.137"]
+CORS_ALLOW_CREDENTIALS = True
 
 AUTH_USER_MODEL = "user.User"  # app.table 형태
 
@@ -35,7 +36,11 @@ DJANGO_APPS = [
     "django.contrib.staticfiles",
 ]
 
-THIRD_PARTY_APPS = ["rest_framework", "rest_framework_simplejwt"]
+THIRD_PARTY_APPS = [
+    "rest_framework",
+    "rest_framework_simplejwt",
+    "corsheaders",
+]
 
 PROJECT_APPS = [
     "user",
@@ -45,6 +50,7 @@ PROJECT_APPS = [
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + PROJECT_APPS
 
 MIDDLEWARE = [
+    "corsheaders.middleware.CorsMiddleware",
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
