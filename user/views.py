@@ -1,4 +1,4 @@
-from django.contrib.auth import authenticate, login
+from django.contrib.auth import authenticate, login, logout
 from rest_framework import status
 from rest_framework.permissions import AllowAny, IsAdminUser
 from rest_framework.response import Response
@@ -7,7 +7,7 @@ from rest_framework_simplejwt.views import TokenObtainPairView
 
 from user.jwt_claim_serializer import GameTokenObtainPairSerializer
 from user.models import User as UserModel
-from user.serializers import UserListSerializer, UserSigninSerializer, UserSignupSerializer
+from user.serializers import UserListDetailSerializer, UserListSerializer, UserSigninSerializer, UserSignupSerializer
 
 
 # /users/signup
@@ -63,6 +63,11 @@ class UserSigninApiView(APIView):
         login(request, user)
         return Response({"message": "로그인 성공!!"}, status=status.HTTP_200_OK)
 
+    def delete(self, request):
+        user = request.user
+        logout(request)
+        return Response(f"로그아웃 되었습니다.{user}님 안녕히가세요!")
+
 
 # /users/
 class UserListAPIView(APIView):
@@ -86,3 +91,57 @@ class UserListAPIView(APIView):
 # /api/gametoken
 class GameTokenObtainPairView(TokenObtainPairView):
     serializer_class = GameTokenObtainPairSerializer
+
+
+class UserListDetailAPIView(APIView):
+    """
+    Assignee : 훈희
+
+    permission = 모두 가능
+    Http method = GET
+    GET : 유저 단건 조회
+
+    response
+    {
+        totalScore:number,
+            bossRaidHistory: [
+            { raidRecordId:number, score:number, enterTime:string, endTime:string },
+            //..
+        ]
+    }
+
+    """
+
+    permission_classes = [AllowAny]
+
+    def get_object_and_check_permission(self, obj_id):
+        """
+        Assignee : 훈희
+
+        obj_id : int
+
+        input 인자로 단일 오브젝트를 가져오고, 퍼미션 검사를 하는 메서드입니다.
+        DoesNotExist 에러 발생 시 None을 리턴합니다.
+        """
+        try:
+            object = UserModel.objects.get(id=obj_id)
+        except UserModel.DoesNotExist:
+            return
+
+        self.check_object_permissions(self.request, object)
+        return object
+
+    def get(self, request, user_id):
+        """
+        Assignee : 훈희
+
+        obj_id : int
+
+        유저 단일 조회를 하기 위한 메서드입니다.
+        """
+        user = self.get_object_and_check_permission(user_id)
+
+        if not user:
+            return Response({"error": "해당 유저가 존재하지 않습니다."}, status=status.HTTP_404_NOT_FOUND)
+
+        return Response(UserListDetailSerializer(user).data, status=status.HTTP_200_OK)
