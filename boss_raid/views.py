@@ -1,5 +1,6 @@
 from django.shortcuts import get_object_or_404
 from rest_framework import status
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
@@ -40,6 +41,8 @@ class BossRaidEnterAPIView(APIView):
 
     보스레이드 시작 api view 입니다.
     """
+
+    permission_classes = [IsAuthenticated]
 
     def post(self, request):
         """
