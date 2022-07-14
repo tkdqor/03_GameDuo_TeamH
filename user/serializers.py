@@ -1,5 +1,6 @@
 from rest_framework import serializers
 
+from boss_raid.models import RaidRecord as RaidRecordModel
 from user.models import User as UserModel
 
 
@@ -78,3 +79,50 @@ class UserSignupSerializer(serializers.ModelSerializer):
         instance.save()
 
         return instance
+
+
+class BossRaidHistorySerializer(serializers.ModelSerializer):
+    """
+    Assignee : 훈희
+
+    View단에서 user 모델의 객체가 주어졌을 때,
+    역참조를 통해 raidRecord 모델의 쿼리셋을 가져오기
+
+    """
+
+    class Meta:
+        model = RaidRecordModel
+
+        fields = ["level", "score", "enter_time", "end_time", "level_clear_score", "time_limit"]
+
+
+class UserListDetailSerializer(serializers.ModelSerializer):
+    """
+    Assignee : 훈희
+
+    View단에서 user 모델의 객체가 주어졌을 때,
+    역참조를 통해 raidRecord 모델의 쿼리셋을 가져오기
+
+    """
+
+    user_id = serializers.IntegerField(source="id", required=False, read_only=True)
+    total_score = serializers.SerializerMethodField(required=False, read_only=True)
+    boss_raid_history = serializers.SerializerMethodField(required=False, read_only=True)
+
+    def get_total_score(self, obj):
+        raid_records = RaidRecordModel.objects.filter(user_id=obj).all()
+        total_score = 0
+        for record in raid_records:
+            total_score += record.level_clear_score
+        return total_score
+
+    def get_boss_raid_history(self, obj):
+        raid_records = RaidRecordModel.objects.filter(user_id=obj.id)
+        boss_raid_history_serializer = BossRaidHistorySerializer(raid_records, many=True)
+
+        return boss_raid_history_serializer.data
+
+    class Meta:
+        model = UserModel
+        fields = ("nickname", "total_score", "user_id", "boss_raid_history")
+        read_only_fields = ["nickname"]
