@@ -19,8 +19,8 @@ APPEND_SLASH = False
 
 ALLOWED_HOSTS = ["*"]
 
-CSRF_TRUSTED_ORIGINS = ["http://172.31.34.53"]
-CORS_ORIGIN_WHITELIST = ["http://172.31.34.53"]
+CSRF_TRUSTED_ORIGINS = ["http://13.124.49.137"]
+CORS_ORIGIN_WHITELIST = ["http://13.124.49.137"]
 
 AUTH_USER_MODEL = "user.User"  # app.table 형태
 
