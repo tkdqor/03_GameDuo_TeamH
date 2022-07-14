@@ -81,38 +81,47 @@ class UserSignupSerializer(serializers.ModelSerializer):
         return instance
 
 
-class RaidRecordModelSerializer(serializers.ModelSerializer):
+# class RaidRecordModelSerializer(serializers.ModelSerializer):
+#     """
+#     Assignee : 훈희
+#
+#     레이드 레코드의 값을 조회하여 값의 토탈을 만들고 레이드 레코드 값도 조회 가능
+#     추가적인 생성과 관련된 내용은 없이 데이터를 가공해서 보내주는 역할을 함
+#
+#     """
+#
+#     totalScore = serializers.SerializerMethodField(required=False, read_only=True)
+#
+#     def get_totalScore(self, obj):
+#         totalScore = obj.raid_record.totalScore
+#         for record in obj.raid_record.user_raid_record.order_by("level", "enter_time").filter(is_deleted=False):
+#             if obj.user == obj.user:
+#                 totalScore += record.amount
+#         return totalScore
+#
+#     def create(self, validated_data):
+#         user_id = self.context["raid_record"]
+#         user_raid_record = RaidRecordModel(user=user_id, **validated_data)
+#         user_raid_record.save()
+#         return user_raid_record
+#
+#     class Meta:
+#         model = RaidRecordModel
+#         fields = ("user", "level", "score", "enter_time", "end_time", "level_clear_score", "time_limit")
+#         read_only_fields = ["is_deleted"]
+#
+#
+
+
+class BossRaidHistorySerializer(serializers.ModelSerializer):
     """
     Assignee : 훈희
 
-    레이드 레코드의 값을 조회하여 값의 토탈을 만들고 레이드 레코드 값도 조회 가능
-    추가적인 생성과 관련된 내용은 없이 데이터를 가공해서 보내주는 역할을 함
+    View단에서 user 모델의 객체가 주어졌을 때,
+    역참조를 통해 raidRecord 모델의 쿼리셋을 가져오기
 
     """
 
-    totalScore = serializers.SerializerMethodField(required=False, read_only=True)
-
-    def get_totalScore(self, obj):
-        balance = obj.raid_record.totalScore
-        for record in obj.raid_record.user_raid_record.order_by("level", "enter_time").filter(is_deleted=False):
-            if obj.user == obj.user:
-                balance += record.amount
-        return balance
-
-    def create(self, validated_data):
-        user_id = self.context["raid_record"]
-        user_raid_record = RaidRecordModel(user=user_id, **validated_data)
-        user_raid_record.save()
-        return user_raid_record
-
-    class Meta:
-        model = RaidRecordModel
-        fields = ("user", "level", "score", "enter_time", "end_time", "level_clear_score", "time_limit")
-        read_only_fields = ["is_deleted"]
-
-
-class RaidRecordSerializer(serializers.ModelSerializer):
-    # article_set = articleSerializer(many=True)
     class Meta:
         model = RaidRecordModel
 
@@ -130,21 +139,22 @@ class UserListDetailSerializer(serializers.ModelSerializer):
 
     user_id = serializers.IntegerField(source="id", required=False, read_only=True)
     total_score = serializers.SerializerMethodField(required=False, read_only=True)
-    raid_records = serializers.SerializerMethodField(required=False, read_only=True)
+    boss_raid_history = serializers.SerializerMethodField(required=False, read_only=True)
 
     def get_total_score(self, obj):
-        raid_records = RaidRecordModel.objects.filter(user_id=obj)
+        raid_records = RaidRecordModel.objects.filter(user_id=obj).all()
         total_score = 0
         for record in raid_records:
             total_score += record.level_clear_score
         return total_score
 
-    def get_raid_records(self, obj):
-        raid_records = RaidRecordModel.objects.filter(user_id=obj)
+    def get_boss_raid_history(self, obj):
+        raid_records = RaidRecordModel.objects.filter(user_id=obj.id)
+        boss_raid_history_serializer = BossRaidHistorySerializer(raid_records, many=True)
 
-        return raid_records
+        return boss_raid_history_serializer.data
 
     class Meta:
         model = UserModel
-        fields = ("nickname", "total_score", "raid_records", "user_id")
+        fields = ("nickname", "total_score", "user_id", "boss_raid_history")
         read_only_fields = ["nickname"]
