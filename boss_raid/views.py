@@ -4,6 +4,8 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
+from config.permissions import IsOwner
+
 from .models import BossRaid, RaidRecord
 from .serializers import RaidRecordModelSerializer
 from .utils import get_playing_records, get_score_and_end_time
@@ -41,12 +43,10 @@ class BossRaidEnterAPIView(APIView):
     로그인 한 유저만 보스레이드를 시작할 수 있습니다.
     """
 
-    permissions_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated]
 
     def post(self, request):
-        """
-        보스레이드 시작 가능한 상태인지 확인하고, 시작 가능하다면 새로운 RaidRecord를 생성합니다.
-        """
+        """보스레이드 시작 가능한 상태인지 확인하고, 시작 가능하다면 새로운 RaidRecord를 생성합니다."""
         playing_record = get_playing_records()
 
         if playing_record:
@@ -61,9 +61,7 @@ class BossRaidEnterAPIView(APIView):
             boss_raid = get_object_or_404(BossRaid, level=level)
             level_clear_score = boss_raid.level_clear_score
             time_limit = boss_raid.time_limit
-
             data = {"user": user, "level": level, "level_clear_score": level_clear_score, "time_limit": time_limit}
-
             serializer = RaidRecordModelSerializer(data=data)
             if serializer.is_valid():
                 serializer.save()
@@ -79,7 +77,19 @@ class BossRaidEndAPIView(APIView):
     Assignee : 민지
 
     보스레이드 종료 api view 입니다.
+    관리자와 보스레이드를 시작한 본인만 종료 요청을 할 수 있습니다.
     """
+
+    permission_classes = [IsOwner]
+
+    def get_object_and_check_permissions(self, record_id):
+        """요청을 한 유저가 해당 레이드에 권한이 있는지 체크합니다."""
+        try:
+            raid_record = RaidRecord.objects.get(id=record_id)
+            self.check_object_permissions(self.request, raid_record)
+            return raid_record
+        except RaidRecord.DoesNotExist:
+            return
 
     def patch(self, request):
         """
@@ -87,7 +97,7 @@ class BossRaidEndAPIView(APIView):
         과제 요구사항에 response 값이 없기 때문에 204 status code를 사용합니다.
         """
         record_id = request.data["recordId"]
-        raid_record = get_object_or_404(RaidRecord, pk=record_id)
+        raid_record = self.get_object_and_check_permissions(record_id)
         data = get_score_and_end_time(record_id)
 
         serializer = RaidRecordModelSerializer(raid_record, data=data, partial=True)
