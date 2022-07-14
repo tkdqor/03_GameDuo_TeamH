@@ -14,7 +14,6 @@ from .utils import get_playing_records, get_score_and_end_time
 class BossRaidStatusAPIView(APIView):
     """
     Assignee : 민지
-
     보스레이드 상태를 조회하는 api view 입니다.
     """
 
@@ -37,7 +36,6 @@ class BossRaidStatusAPIView(APIView):
 class BossRaidEnterAPIView(APIView):
     """
     Assignee : 민지
-
     보스레이드 시작 api view 입니다.
     """
 
@@ -75,7 +73,6 @@ class BossRaidEnterAPIView(APIView):
 class BossRaidEndAPIView(APIView):
     """
     Assignee : 민지
-
     보스레이드 종료 api view 입니다.
     """
 

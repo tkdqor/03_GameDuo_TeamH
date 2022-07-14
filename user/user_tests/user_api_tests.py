@@ -63,7 +63,7 @@ class UserSignInViewTestCase(APITestCase):
     """
     Assignee : 상백
 
-    회원 로그인 테스트입니다.
+    회원 로그인 및 로그아웃 테스트입니다.
     setUp 메서드로 생성된 유저로 로그인 가능 여부를 확인합니다.
     또한, nickname과 password가 다른 경우를 확인합니다.
     """
@@ -72,9 +72,10 @@ class UserSignInViewTestCase(APITestCase):
 
     def setUp(self):
         """유저 생성 설정"""
-        self.nickname = "sangbaek"
+        # self.user_id = 1
+        self.nickname = "test1"
         self.password = "123456"
-        self.user = User.objects.create_user(self.nickname, self.password)
+        self.user = User.objects.create(nickname=self.nickname, password=self.password)
         self.client = APIClient()
         self.client.force_authenticate(self.user)
 
@@ -93,14 +94,21 @@ class UserSignInViewTestCase(APITestCase):
         response = self.client.post(self.url, {"nickname": self.nickname, "password": "wrongwrong"})
         self.assertEqual(401, response.status_code)
 
+    def test_logout(self):
+        """로그아웃 테스트"""
+        response = self.client.delete(self.url)
+        self.assertEqual(200, response.status_code)
 
-class UserLookupTestCase(APITestCase):
+
+class UserListTestCase(APITestCase):
     """
     Assignee : 상백
 
     회원 전체 조회 테스트입니다.
     setUp 메서드로 admin 유저 로그인 상태로 설정 후, 회원 전체 조회 여부를 확인합니다.
     """
+
+    url = "/users/"
 
     def setUp(self):
         """로그인 상태 설정"""
@@ -114,6 +122,15 @@ class UserLookupTestCase(APITestCase):
 
     def test_user_api_view_get(self):
         """회원 전체 조회 테스트"""
-        url = "/users/"
-        response = self.client.get(url, format="json")
+        response = self.client.get(self.url, format="json")
         self.assertEqual(200, response.status_code)
+
+
+class UserLookupTestCase(APITestCase):
+    """
+    Assignee : 상백
+
+    회원 단건 조회 테스트입니다.
+    """
+
+    url = "/users/<user_id>"
