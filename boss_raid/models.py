@@ -9,7 +9,6 @@ class BossRaid(models.Model):
 
     보스 레이드에 대한 정보를 담고 있는 모델입니다.
     S3데이터를 레디스로 캐싱하는 작업이 이루어지기 전, API 개발에 쓰입니다.
-
     """
 
     id = models.BigAutoField(primary_key=True)

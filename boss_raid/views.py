@@ -1,4 +1,3 @@
-from django.shortcuts import get_object_or_404
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -6,9 +5,9 @@ from rest_framework.views import APIView
 
 from config.permissions import IsOwner
 
-from .models import BossRaid, RaidRecord
+from .models import RaidRecord
 from .serializers import RaidRecordModelSerializer
-from .utils import get_playing_records, get_score_and_end_time
+from .utils import get_levels, get_playing_records, get_raid_time, get_score_and_end_time
 
 
 # url : GET api/v1/bossRaid
@@ -53,22 +52,22 @@ class BossRaidEnterAPIView(APIView):
             return Response({"isEntered": "False"}, status=status.HTTP_202_ACCEPTED)
         else:
             user = request.user.id
-            level = request.data["level"]
-            """
-            BossRaid에서 level_score_limit과 time_limit을 가져오는 부분은,
-            추후에 S3 데이터를 캐싱한 Redis에서 가져오는 코드로 수정될 예정입니다.
-            """
-            boss_raid = get_object_or_404(BossRaid, level=level)
-            level_clear_score = boss_raid.level_clear_score
-            time_limit = boss_raid.time_limit
-            data = {"user": user, "level": level, "level_clear_score": level_clear_score, "time_limit": time_limit}
-            serializer = RaidRecordModelSerializer(data=data)
-            if serializer.is_valid():
-                serializer.save()
-                return Response(
-                    {"isEntered": "True", "raidRecordId": serializer.data["id"]}, status=status.HTTP_201_CREATED
-                )
-            return Response({"message": "게임을 시작할 수 없습니다."}, status=status.HTTP_404_NOT_FOUND)
+            level = int(request.data["level"])
+
+            try:
+                level_clear_score = get_levels()[level - 1]["score"]
+                time_limit = get_raid_time()
+
+                data = {"user": user, "level": level, "level_clear_score": level_clear_score, "time_limit": time_limit}
+                serializer = RaidRecordModelSerializer(data=data)
+                if serializer.is_valid():
+                    serializer.save()
+                    return Response(
+                        {"isEntered": "True", "raidRecordId": serializer.data["id"]}, status=status.HTTP_201_CREATED
+                    )
+                return Response({"message": "게임을 시작할 수 없습니다."}, status=status.HTTP_404_NOT_FOUND)
+            except IndexError:
+                return Response({"message": "해당 레벨의 레이드가 없습니다."}, status=status.HTTP_400_BAD_REQUEST)
 
 
 # url : PATCH api/v1/bossRaid/end
