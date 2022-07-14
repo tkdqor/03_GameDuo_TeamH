@@ -1,9 +1,8 @@
 from django.shortcuts import get_object_or_404
 from rest_framework import status
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
-
-from user.models import User
 
 from .models import BossRaid, RaidRecord
 from .serializers import RaidRecordModelSerializer
@@ -39,7 +38,10 @@ class BossRaidEnterAPIView(APIView):
     Assignee : 민지
 
     보스레이드 시작 api view 입니다.
+    로그인 한 유저만 보스레이드를 시작할 수 있습니다.
     """
+
+    permissions_classes = [IsAuthenticated]
 
     def post(self, request):
         """
@@ -50,8 +52,7 @@ class BossRaidEnterAPIView(APIView):
         if playing_record:
             return Response({"isEntered": "False"}, status=status.HTTP_200_OK)
         else:
-            user_id = request.data["userId"]
-            user = User.objects.get(id=user_id).id
+            user = request.user.id
             level = request.data["level"]
             """
             BossRaid에서 level_score_limit과 time_limit을 가져오는 부분은,
