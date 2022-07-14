@@ -81,38 +81,6 @@ class UserSignupSerializer(serializers.ModelSerializer):
         return instance
 
 
-# class RaidRecordModelSerializer(serializers.ModelSerializer):
-#     """
-#     Assignee : 훈희
-#
-#     레이드 레코드의 값을 조회하여 값의 토탈을 만들고 레이드 레코드 값도 조회 가능
-#     추가적인 생성과 관련된 내용은 없이 데이터를 가공해서 보내주는 역할을 함
-#
-#     """
-#
-#     totalScore = serializers.SerializerMethodField(required=False, read_only=True)
-#
-#     def get_totalScore(self, obj):
-#         totalScore = obj.raid_record.totalScore
-#         for record in obj.raid_record.user_raid_record.order_by("level", "enter_time").filter(is_deleted=False):
-#             if obj.user == obj.user:
-#                 totalScore += record.amount
-#         return totalScore
-#
-#     def create(self, validated_data):
-#         user_id = self.context["raid_record"]
-#         user_raid_record = RaidRecordModel(user=user_id, **validated_data)
-#         user_raid_record.save()
-#         return user_raid_record
-#
-#     class Meta:
-#         model = RaidRecordModel
-#         fields = ("user", "level", "score", "enter_time", "end_time", "level_clear_score", "time_limit")
-#         read_only_fields = ["is_deleted"]
-#
-#
-
-
 class BossRaidHistorySerializer(serializers.ModelSerializer):
     """
     Assignee : 훈희
