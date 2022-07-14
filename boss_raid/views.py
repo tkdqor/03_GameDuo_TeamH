@@ -50,7 +50,7 @@ class BossRaidEnterAPIView(APIView):
         playing_record = get_playing_records()
 
         if playing_record:
-            return Response({"isEntered": "False"}, status=status.HTTP_200_OK)
+            return Response({"isEntered": "False"}, status=status.HTTP_202_ACCEPTED)
         else:
             user = request.user.id
             level = request.data["level"]
