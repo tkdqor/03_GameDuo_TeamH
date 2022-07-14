@@ -44,17 +44,15 @@ class BossRaidEnterAPIView(APIView):
     def post(self, request):
         """
         보스레이드 시작 가능한 상태인지 확인하고, 시작 가능하다면 새로운 RaidRecord를 생성합니다.
-        보스레이드 상태조회 api view 와 겹치는 코드는 추후에 리팩토링할 예정입니다.
         """
-        print(f"user: {request.user}")
         playing_record = get_playing_records()
+
         if playing_record:
             return Response({"isEntered": "False"}, status=status.HTTP_200_OK)
         else:
             user_id = request.data["userId"]
+            user = User.objects.get(id=user_id).id
             level = request.data["level"]
-
-            user = User.objects.get(id=user_id)
             """
             BossRaid에서 level_score_limit과 time_limit을 가져오는 부분은,
             추후에 S3 데이터를 캐싱한 Redis에서 가져오는 코드로 수정될 예정입니다.
@@ -63,12 +61,14 @@ class BossRaidEnterAPIView(APIView):
             level_clear_score = boss_raid.level_clear_score
             time_limit = boss_raid.time_limit
 
-            new_raid_record = RaidRecord.objects.create(
-                user=user, level=level, level_clear_score=level_clear_score, time_limit=time_limit
-            )
-            new_raid_record.save()
+            data = {"user": user, "level": level, "level_clear_score": level_clear_score, "time_limit": time_limit}
 
-            return Response({"isEntered": "True", "raidRecordId": new_raid_record.id}, status=status.HTTP_201_CREATED)
+            serializer = RaidRecordModelSerializer(data=data)
+            if serializer.is_valid():
+                serializer.save()
+                return Response(
+                    {"isEntered": "True", "raidRecordId": serializer.data["id"]}, status=status.HTTP_201_CREATED
+                )
 
 
 # url : PATCH api/v1/bossRaid/end
