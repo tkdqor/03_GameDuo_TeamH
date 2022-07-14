@@ -11,10 +11,13 @@ black = "*"
 flake8 = "*"
 isort = "*"
 requests = "*"
+djangorestframework-simplejwt = "*"
 redis = "*"
 django-redis = "*"
 tzdata = "*"
 mysqlclient = "*"
+pytest = "*"
+pytest-django = "*"
 
 [dev-packages]
 
