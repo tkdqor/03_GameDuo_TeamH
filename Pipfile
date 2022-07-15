@@ -18,6 +18,7 @@ tzdata = "*"
 mysqlclient = "*"
 pytest = "*"
 pytest-django = "*"
+django-cors-headers = "*"
 
 [dev-packages]
 
