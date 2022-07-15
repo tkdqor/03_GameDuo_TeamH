@@ -177,6 +177,10 @@ Docker, NginX, uWSGI를 사용하여 AWS EC2 서버에 배포하였습니다. <b
 <br>
 
 ## ✔️ Test Case 
+유저 생성 및 로그인, 로그아웃, 유저 조회 API와 보스레이드 상태 조회, 시작, 종료 API TESTCASE 수행
+<img width="1088" alt="스크린샷 2022-07-15 오후 6 04 36" src="https://user-images.githubusercontent.com/95380638/179210977-0c61620a-f97b-4600-815a-8c0b428a8ac1.png">
+
+
 
 <br>
 
