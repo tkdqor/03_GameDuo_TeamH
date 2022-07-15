@@ -1,8 +1,5 @@
-import datetime
-
 from rest_framework.test import APIClient, APITestCase
 
-from boss_raid.models import BossRaid, RaidRecord
 from user.models import User
 
 
@@ -62,7 +59,7 @@ class UserSiginUpViewTestCase(APITestCase):
         self.assertEqual(400, response.status_code)
 
 
-class UserSignInViewTestCase(APITestCase):
+class UserLoginInViewTestCase(APITestCase):
     """
     Assignee : 상백
 
@@ -71,7 +68,7 @@ class UserSignInViewTestCase(APITestCase):
     또한, nickname과 password가 다른 경우를 확인합니다.
     """
 
-    url = "/users/signin"
+    url = "/users/login"
 
     def setUp(self):
         """유저 생성 설정"""
@@ -125,48 +122,5 @@ class UserListTestCase(APITestCase):
 
     def test_user_list_api_view_get(self):
         """회원 전체 조회 테스트"""
-        response = self.client.get(self.url, format="json")
-        self.assertEqual(200, response.status_code)
-
-
-class UserLookupTestCase(APITestCase):
-    """
-    Assignee : 상백
-
-    회원 단건 조회 테스트입니다.
-    """
-
-    url = "/users/<user_id>"
-
-    def setUp(self):
-        """유저 생성 설정"""
-        self.user_id = (1,)
-        self.nickname = "sangbaek"
-        self.password = "123456"
-        self.user = User.objects.create(
-            id=self.user_id,
-            nickname=self.nickname,
-            password=self.password,
-        )
-
-        self.bossraid = BossRaid.objects.create(level=1, level_clear_score=20, time_limit=180)
-
-        now = datetime.datetime.now()
-        # self.id = 1
-        self.level = 1
-        self.enter_time = now
-        self.level_clear_score = 20
-        self.time_limit = 5
-
-        self.raidrecord = RaidRecord.objects.create(
-            # user_id=self.id,
-            level=self.level,
-            enter_time=self.enter_time,
-            level_clear_score=self.level_clear_score,
-            time_limit=self.time_limit,
-        )
-
-    def test_user_lookup_api_view_get(self):
-        """회원 단건 조회 테스트"""
         response = self.client.get(self.url, format="json")
         self.assertEqual(200, response.status_code)

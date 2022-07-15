@@ -4,6 +4,7 @@ import time
 from rest_framework.test import APIClient, APITestCase
 
 from boss_raid.models import BossRaid, RaidRecord
+from boss_raid.utils import get_raid_time
 from user.models import User
 
 
@@ -25,31 +26,31 @@ class BossRaidStatusFalseAPIViewTestCase(APITestCase):
         self.level = 1
         self.enter_time = now
         self.level_clear_score = 20
-        self.time_limit = 5
+        self.time_limit = get_raid_time()
 
-        self.user = User.objects.create(nickname="sangbaek", password="123456")
+        user = User.objects.create(nickname="sangbaek", password="123456")
 
         self.raidrecord = RaidRecord.objects.create(
-            user_id=self.user.id,
+            user_id=user.id,
             level=self.level,
             enter_time=self.enter_time,
             level_clear_score=self.level_clear_score,
             time_limit=self.time_limit,
         )
 
-    def test_bossraid_status_canEnter_True1(self):
+    def test_bossraid_status_canEnter_False(self):
         """보스레이드 상태 입장 불가능 테스트"""
         time.sleep(2)
         response = self.client.get(self.url)
         self.assertEqual(200, response.status_code)
         self.assertEqual(response.json()["canEnter"], "False")
 
-    # def test_bossraid_status_canEnter_True2(self):
-    #     """보스레이드 상태 입장 가능 테스트"""
-    #     time.sleep(7)
-    #     response = self.client.get(self.url)
-    #     self.assertEqual(200, response.status_code)
-    #     self.assertEqual(response.json()["canEnter"], "True")
+    def test_bossraid_status_canEnter_True(self):
+        """보스레이드 상태 입장 가능 테스트"""
+        time.sleep(self.time_limit + 5)
+        response = self.client.get(self.url)
+        self.assertEqual(200, response.status_code)
+        self.assertEqual(response.json()["canEnter"], "True")
 
 
 class BossRaidEnterAPIViewTestCase(APITestCase):
@@ -76,7 +77,7 @@ class BossRaidEnterAPIViewTestCase(APITestCase):
 
     def test_bossraid_enter(self):
         """보스레이드 시작 테스트"""
-        bossraid_data = {"userId": 1, "level": 1}
+        bossraid_data = {"level": 1}
         response = self.client.post(self.url, data=bossraid_data, format="json")
         self.assertEqual(response.status_code, 201)
 
