@@ -119,10 +119,13 @@ class BossRaidEndAPIView(APIView):
         """
         record_id = request.data["recordId"]
         raid_record = self.get_object_and_check_permissions(record_id)
-        data = get_score_and_end_time(record_id)
+        try:
+            data = get_score_and_end_time(record_id)
 
-        serializer = RaidRecordModelSerializer(raid_record, data=data, partial=True)
-        if serializer.is_valid(raise_exception=True):
-            serializer.save()
+            serializer = RaidRecordModelSerializer(raid_record, data=data, partial=True)
+            if serializer.is_valid(raise_exception=True):
+                serializer.save()
 
-        return Response(status=status.HTTP_204_NO_CONTENT)
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        except:
+            return Response({"message": "해당 레벨의 레이드가 없습니다."}, status=status.HTTP_400_BAD_REQUEST)
