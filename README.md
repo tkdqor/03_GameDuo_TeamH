@@ -164,6 +164,9 @@ Lint
 <br>
 
 ## 📋 ERD
+<img width="399" alt="image" src="https://user-images.githubusercontent.com/89897944/179209834-9b62c161-a7d3-4d9f-947d-dd1265ca6554.png">
+최종 모델링입니다. 초기 모델에서는 테이블을 3개로 구성하는 것으로 진행하였으나 redis를 사용하면서 정적파일을 변경사항이 있을때 
+가져오는 방식으로 동작 방식을 수정하면서 간소화 되었습니다.
 
 <br>
 
