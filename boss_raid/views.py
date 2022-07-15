@@ -12,6 +12,7 @@ from .serializers import RaidRecordModelSerializer
 from .utils.boss_raid_api_utils import get_playing_records, get_score_and_end_time
 from .utils.redis_cache import get_levels, get_raid_time
 from .utils.redis_queue import RedisQueue
+from .utils.redis_rank import get_rank
 
 q = RedisQueue("my_queue", host="localhost", port=6379, db=2)
 """배포 서버에서는 host 변경이 필요합니다."""
@@ -126,3 +127,44 @@ class BossRaidEndAPIView(APIView):
             return Response(status=status.HTTP_204_NO_CONTENT)
         except:
             return Response({"message": "해당 레벨의 레이드가 없습니다."}, status=status.HTTP_400_BAD_REQUEST)
+
+
+class BossRaidRankingAPIView(APIView):
+    """
+    Assignee : 훈희
+
+    랭킹을 실시간으로 조회하기 위한공간 입니다.
+    redis에서 업데이트 된 totalscore와 nickname으로 구성된 dict() 데이터를 받아오게 됩니다.
+
+    cache_data = [{'nickname': 'mindi', 'score': 97}, {'nickname': 'user_1', 'score': 53},
+              {'nickname': 'user_3', 'score': 36}, {'nickname': 'user_4', 'score': 13},
+             ... ]
+    해당 내용을 재가공하여 순위에 맞게 출력합니다. 서비스에서는 5위까지 표시합니다.
+    자신의 로그인한 nickname을 이용해서 자신의 순위도 나타납니다.
+
+    """
+
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+
+        cache_data = get_rank()
+        ranking_result = []
+        user = request.user.nickname
+        """5위 까지의 정보 출력 """
+        topRankerInfoList = cache_data[0:5]
+        try:
+            location = [i for i, t in enumerate(cache_data) if t["nickname"] == user]
+            myRankingInfo = location[0] + 1
+        except:
+            myRankingInfo = "unrank"
+            pass
+
+        else:
+            print(f"{user}님은 랭커입니다")
+
+        ranking_result.append(f"topRankerInfoList : {topRankerInfoList}")
+        ranking_result.append(f"myRankingInfo:{myRankingInfo}")
+        ranking_response = Response(ranking_result, status=status.HTTP_200_OK)
+
+        return ranking_response

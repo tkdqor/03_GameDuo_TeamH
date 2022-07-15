@@ -70,6 +70,7 @@ class LoginView(APIView):
         token = GameTokenObtainPairSerializer.get_token(user)
         refresh_token = str(token)
         access_token = str(token.access_token)
+
         response = Response(
             {
                 "user": user_serializer.data,
@@ -87,7 +88,7 @@ class LoginView(APIView):
     def delete(self, request):
         user = request.user
         logout(request)
-        return Response(f"토큰을 유지하고 로그아웃 되었습니다.{user}님 안녕히가세요!")
+        return Response(f"user :{user} 로그아웃 성공!!, 토큰을 유지")
 
 
 # /users/logout
@@ -118,7 +119,7 @@ class LogoutView(GenericAPIView):
         user = request.user
         logout(request)
 
-        return Response(f"토큰을 반납하고 로그아웃 되었습니다.{user}님 안녕히가세요!", status=status.HTTP_204_NO_CONTENT)
+        return Response(f"user :{user} 로그아웃 성공!!, 토큰을 반납", status=status.HTTP_204_NO_CONTENT)
 
 
 # /users/
