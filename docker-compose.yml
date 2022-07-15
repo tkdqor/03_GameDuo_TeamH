@@ -12,6 +12,7 @@ services:
 
     depends_on:
       - mysql
+      - redis
 
     restart: always
 
@@ -47,3 +48,10 @@ services:
 
     restart: always
 
+  redis:
+    image: redis:7.0
+    container_name: redis
+    command: redis-server --port 6379
+    ports:
+      - 6379:6379
+    restart: always
