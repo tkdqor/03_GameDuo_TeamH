@@ -21,7 +21,6 @@ q = RedisQueue("my_queue", host="localhost", port=6379, db=2)
 class BossRaidStatusAPIView(APIView):
     """
     Assignee : 민지
-
     보스레이드 상태를 조회하는 api view 입니다.
     """
 
@@ -44,7 +43,6 @@ class BossRaidStatusAPIView(APIView):
 class BossRaidEnterAPIView(APIView):
     """
     Assignee : 민지
-
     보스레이드 시작 api view 입니다.
     로그인 한 유저만 보스레이드를 시작할 수 있습니다.
     """
@@ -96,7 +94,6 @@ class BossRaidEnterAPIView(APIView):
 class BossRaidEndAPIView(APIView):
     """
     Assignee : 민지
-
     보스레이드 종료 api view 입니다.
     관리자와 보스레이드를 시작한 본인만 종료 요청을 할 수 있습니다.
     """
