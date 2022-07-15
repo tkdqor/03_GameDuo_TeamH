@@ -150,6 +150,14 @@ Lint
 ## 🌟 API 명세서
 <img width="1176" alt="스크린샷 2022-07-15 오후 4 35 39" src="https://user-images.githubusercontent.com/76423946/179175389-367d73d6-b0dc-4131-9bec-20cf4f73fad8.png">
 
+- 회원 생성은 두개의 키값인 nickname과 password를 받아서 수행합니다. 예외처리로는 각각의 키값이 6자리를 넘지 못하면 동작되지 않습니다.  
+- 회원 로그인은 기본적인 로그인 기능과 로그인이 되는 상황에서 jwt토큰을 함께 요청하고 해당 토큰 값을 response에 같이 반환 합니다.
+- 회원 로그아웃은 두가지로 구현하였습니다. 기본적인 장고의 logout()을 사용하되 한가지 경우는 토큰을 반납하면서 blacklist에 등록하고 다른 방법은 토큰 반납이 없이 로그아웃 됩니다.
+- 회원조회는 전체조회와 단건조회로 나뉘어집니다. 그냥 문자상으로는 전체 회원의 내용과 특정 회원의 데이터를 보여주는 방식으로 다를 것이라고 생각되지만 전체 조회는 회원 전체의 리스트가 맞지만 단건조회는 회원 개인의 레이드레코드를 같이 서빙해준다는 점이 다릅니다.
+- 보스레이드 상태조회는 보스레이드 상태를 조회합니다. 레이드 레코드의 endtime이 현재 시점에서 입력이 안되어있는 필드가 있는지 또 그 필드의 진행시간을 얼마나 지났는지를 판별하여 입장 가능 여부를 판별하게 됩니다.
+- 보스레이드 시작은 API호출시 레이드 레코드의 starttime에 지금 시간을 등록하면서 시작하게 됩니다.
+- 보스레이드 종료는 PATCH 메소드를 이용해서 보스레이드 시작에서 만든 레이드 레코드의 필드의 내용에서 endtime부분을 변경하게 됩니다.
+- 랭킹 확인은 Redis에서 업데이트한 플레이어의 스코어 기록을 재가공하여 플레이어들의 스코어 배열을 정렬하여 받아서 이것을 원하는 랭킹 순위만큼 슬라이싱하여 유저에게 서빙합니다. 동일한 데이터에서 사용자의 닉네임을 이용하여 랭킹을 확인하여 같이 서빙합니다.
 
 
 <br>
@@ -158,22 +166,63 @@ Lint
 <summary>🚀 API 호출 테스트 결과</summary>
 <div markdown="1">
 
+- 회원 생성
+<img width="994" alt="image" src="https://user-images.githubusercontent.com/89897944/179219478-9dfc392f-33b2-4ab1-b5c9-1cf079ee362d.png">
+
+- 회원 로그인
+<img width="1149" alt="image" src="https://user-images.githubusercontent.com/89897944/179219524-86991749-5838-4780-86cf-7a1dc88fc11f.png">
+
+- 회원 로그아웃
+<img width="977" alt="image" src="https://user-images.githubusercontent.com/89897944/179219994-549bd82a-d54d-4e0e-8277-36c4a972d9a4.png">
+
+- 회원 로그아웃( 토큰 유지 )
+<img width="891" alt="image" src="https://user-images.githubusercontent.com/89897944/179220054-cc50ccae-20da-4616-b40d-af7248da9198.png">
+
+- 전체 회원 조회 : admin 유저만 가능
+<img width="910" alt="image" src="https://user-images.githubusercontent.com/89897944/179220138-67f24c97-4b3a-433b-b9f9-f003041c8fec.png">
+<img width="987" alt="image" src="https://user-images.githubusercontent.com/89897944/179220324-65764b7d-f03e-4c8c-8f3e-b751a285a730.png">
+
+- 회원 단건 조회 : 회원정보와 해당 회원의 레이드 레코드가 같이 출력
+<img width="1082" alt="image" src="https://user-images.githubusercontent.com/89897944/179220461-15805b45-65ee-4eeb-b6ae-c29c13f2887d.png">
+
+- 보스레이드 상태 조회
+<img width="932" alt="image" src="https://user-images.githubusercontent.com/89897944/179220513-e4a4734c-5710-4d2f-8448-fbf11393c641.png">
+
+- 보스레이드 시작
+<img width="889" alt="image" src="https://user-images.githubusercontent.com/89897944/179220550-ca4c9498-d0aa-4440-8b93-d936cf01ee74.png">
+
+- 보스레이드 종료
+
+- 랭킹 확인
+<img width="1053" alt="image" src="https://user-images.githubusercontent.com/89897944/179220633-fa53af23-38b1-48ac-9eef-93664112f734.png">
+
+
 </div>
 </details>
 
 <br>
 
 ## 📋 ERD
+<img width="399" alt="image" src="https://user-images.githubusercontent.com/89897944/179209834-9b62c161-a7d3-4d9f-947d-dd1265ca6554.png">
+최종 모델링입니다. 초기 모델에서는 테이블을 3개로 구성하는 것으로 진행하였으나 redis를 사용하면서 정적파일을 변경사항이 있을때 
+가져오는 방식으로 동작 방식을 수정하면서 간소화 되었습니다.
 
 <br>
 
 ## 🌎 배포
 Docker, NginX, uWSGI를 사용하여 AWS EC2 서버에 배포하였습니다. <br>
-#### ➡️ [기본 URL](https://13.124.49.137/) <br>
+➡️ [서비스 주소](http://13.124.49.137/) <br>
+
+### 🖼 서비스 아키텍처
+![image](https://user-images.githubusercontent.com/96563183/179229678-0eeca455-3776-4d8a-a6af-2f2a3c7f53a1.png)
 
 <br>
 
 ## ✔️ Test Case 
+유저 생성 및 로그인, 로그아웃, 유저 조회 API와 보스레이드 상태 조회, 시작, 종료 API TESTCASE 수행
+<img width="1088" alt="스크린샷 2022-07-15 오후 6 04 36" src="https://user-images.githubusercontent.com/95380638/179210977-0c61620a-f97b-4600-815a-8c0b428a8ac1.png">
+
+
 
 <br>
 

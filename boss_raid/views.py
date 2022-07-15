@@ -1,4 +1,5 @@
-from django.shortcuts import get_object_or_404
+import json
+
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -6,16 +7,21 @@ from rest_framework.views import APIView
 
 from config.permissions import IsOwner
 
-from .models import BossRaid, RaidRecord
+from .models import RaidRecord
 from .serializers import RaidRecordModelSerializer
-from .utils import get_playing_records, get_score_and_end_time
+from .utils.boss_raid_api_utils import get_playing_records, get_score_and_end_time
+from .utils.redis_cache import get_levels, get_raid_time
+from .utils.redis_queue import RedisQueue
+from .utils.redis_rank import get_rank
+
+q = RedisQueue("my_queue", host="localhost", port=6379, db=2)
+"""배포 서버에서는 host 변경이 필요합니다."""
 
 
 # url : GET api/v1/bossRaid
 class BossRaidStatusAPIView(APIView):
     """
     Assignee : 민지
-
     보스레이드 상태를 조회하는 api view 입니다.
     """
 
@@ -38,7 +44,6 @@ class BossRaidStatusAPIView(APIView):
 class BossRaidEnterAPIView(APIView):
     """
     Assignee : 민지
-
     보스레이드 시작 api view 입니다.
     로그인 한 유저만 보스레이드를 시작할 수 있습니다.
     """
@@ -53,29 +58,43 @@ class BossRaidEnterAPIView(APIView):
             return Response({"isEntered": "False"}, status=status.HTTP_202_ACCEPTED)
         else:
             user = request.user.id
-            level = request.data["level"]
+            level = int(request.data["level"])
+
             """
-            BossRaid에서 level_score_limit과 time_limit을 가져오는 부분은,
-            추후에 S3 데이터를 캐싱한 Redis에서 가져오는 코드로 수정될 예정입니다.
+            동시성 이슈 핸들링을 위해 queue를 사용합니다.
+            여러 유저가 동시에 레이드를 시작하려 할때, queue에 가장 먼저 정보를 넣은 유저만 게임을 시작할 수 있습니다.
             """
-            boss_raid = get_object_or_404(BossRaid, level=level)
-            level_clear_score = boss_raid.level_clear_score
-            time_limit = boss_raid.time_limit
-            data = {"user": user, "level": level, "level_clear_score": level_clear_score, "time_limit": time_limit}
-            serializer = RaidRecordModelSerializer(data=data)
-            if serializer.is_valid():
-                serializer.save()
-                return Response(
-                    {"isEntered": "True", "raidRecordId": serializer.data["id"]}, status=status.HTTP_201_CREATED
-                )
-            return Response({"message": "게임을 시작할 수 없습니다."}, status=status.HTTP_404_NOT_FOUND)
+            element = json.dumps({"whoSetQueueFirst": user})
+            q.put(element)
+            first_element = q.get()
+            first_element_json = json.loads(first_element)
+
+            if user != first_element_json["whoSetQueueFirst"]:
+                q.set_empty()
+                return Response({"isEntered": "False"}, status=status.HTTP_202_ACCEPTED)
+            try:
+                level_clear_score = get_levels()[level - 1]["score"]
+                time_limit = get_raid_time()
+
+                data = {"user": user, "level": level, "level_clear_score": level_clear_score, "time_limit": time_limit}
+                serializer = RaidRecordModelSerializer(data=data)
+                if serializer.is_valid():
+                    serializer.save()
+                    q.set_empty()
+                    return Response(
+                        {"isEntered": "True", "raidRecordId": serializer.data["id"]}, status=status.HTTP_201_CREATED
+                    )
+                q.set_empty()
+                return Response({"message": "게임을 시작할 수 없습니다."}, status=status.HTTP_404_NOT_FOUND)
+            except IndexError:
+                q.set_empty()
+                return Response({"message": "해당 레벨의 레이드가 없습니다."}, status=status.HTTP_400_BAD_REQUEST)
 
 
 # url : PATCH api/v1/bossRaid/end
 class BossRaidEndAPIView(APIView):
     """
     Assignee : 민지
-
     보스레이드 종료 api view 입니다.
     관리자와 보스레이드를 시작한 본인만 종료 요청을 할 수 있습니다.
     """
@@ -98,10 +117,54 @@ class BossRaidEndAPIView(APIView):
         """
         record_id = request.data["recordId"]
         raid_record = self.get_object_and_check_permissions(record_id)
-        data = get_score_and_end_time(record_id)
+        try:
+            data = get_score_and_end_time(record_id)
 
-        serializer = RaidRecordModelSerializer(raid_record, data=data, partial=True)
-        if serializer.is_valid(raise_exception=True):
-            serializer.save()
+            serializer = RaidRecordModelSerializer(raid_record, data=data, partial=True)
+            if serializer.is_valid(raise_exception=True):
+                serializer.save()
 
-        return Response(status=status.HTTP_204_NO_CONTENT)
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        except:
+            return Response({"message": "해당 레벨의 레이드가 없습니다."}, status=status.HTTP_400_BAD_REQUEST)
+
+
+class BossRaidRankingAPIView(APIView):
+    """
+    Assignee : 훈희
+
+    랭킹을 실시간으로 조회하기 위한공간 입니다.
+    redis에서 업데이트 된 totalscore와 nickname으로 구성된 dict() 데이터를 받아오게 됩니다.
+
+    cache_data = [{'nickname': 'mindi', 'score': 97}, {'nickname': 'user_1', 'score': 53},
+              {'nickname': 'user_3', 'score': 36}, {'nickname': 'user_4', 'score': 13},
+             ... ]
+    해당 내용을 재가공하여 순위에 맞게 출력합니다. 서비스에서는 5위까지 표시합니다.
+    자신의 로그인한 nickname을 이용해서 자신의 순위도 나타납니다.
+
+    """
+
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+
+        cache_data = get_rank()
+        ranking_result = []
+        user = request.user.nickname
+        """5위 까지의 정보 출력 """
+        topRankerInfoList = cache_data[0:5]
+        try:
+            location = [i for i, t in enumerate(cache_data) if t["nickname"] == user]
+            myRankingInfo = location[0] + 1
+        except:
+            myRankingInfo = "unrank"
+            pass
+
+        else:
+            print(f"{user}님은 랭커입니다")
+
+        ranking_result.append(f"topRankerInfoList : {topRankerInfoList}")
+        ranking_result.append(f"myRankingInfo:{myRankingInfo}")
+        ranking_response = Response(ranking_result, status=status.HTTP_200_OK)
+
+        return ranking_response
