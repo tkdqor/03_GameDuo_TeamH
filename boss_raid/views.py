@@ -1,3 +1,5 @@
+import json
+
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -7,7 +9,12 @@ from config.permissions import IsOwner
 
 from .models import RaidRecord
 from .serializers import RaidRecordModelSerializer
-from .utils import get_levels, get_playing_records, get_raid_time, get_score_and_end_time
+from .utils.boss_raid_api_utils import get_playing_records, get_score_and_end_time
+from .utils.redis_cache import get_levels, get_raid_time
+from .utils.redis_queue import RedisQueue
+
+q = RedisQueue("my_queue", host="localhost", port=6379, db=2)
+"""배포 서버에서는 host 변경이 필요합니다."""
 
 
 # url : GET api/v1/bossRaid
@@ -54,6 +61,18 @@ class BossRaidEnterAPIView(APIView):
             user = request.user.id
             level = int(request.data["level"])
 
+            """
+            동시성 이슈 핸들링을 위해 queue를 사용합니다.
+            여러 유저가 동시에 레이드를 시작하려 할때, queue에 가장 먼저 정보를 넣은 유저만 게임을 시작할 수 있습니다.
+            """
+            element = json.dumps({"whoSetQueueFirst": user})
+            q.put(element)
+            first_element = q.get()
+            first_element_json = json.loads(first_element)
+
+            if user != first_element_json["whoSetQueueFirst"]:
+                q.set_empty()
+                return Response({"isEntered": "False"}, status=status.HTTP_202_ACCEPTED)
             try:
                 level_clear_score = get_levels()[level - 1]["score"]
                 time_limit = get_raid_time()
@@ -62,11 +81,14 @@ class BossRaidEnterAPIView(APIView):
                 serializer = RaidRecordModelSerializer(data=data)
                 if serializer.is_valid():
                     serializer.save()
+                    q.set_empty()
                     return Response(
                         {"isEntered": "True", "raidRecordId": serializer.data["id"]}, status=status.HTTP_201_CREATED
                     )
+                q.set_empty()
                 return Response({"message": "게임을 시작할 수 없습니다."}, status=status.HTTP_404_NOT_FOUND)
             except IndexError:
+                q.set_empty()
                 return Response({"message": "해당 레벨의 레이드가 없습니다."}, status=status.HTTP_400_BAD_REQUEST)
 
 
