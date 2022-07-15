@@ -96,3 +96,59 @@ class BossRaidEndAPIView(APIView):
             serializer.save()
 
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+class BossRaidRankingAPIView(APIView):
+    """
+    Assignee : 훈희
+
+    랭킹을 실시간으로 조회하기 위한공간 입니다.
+    redis에서 업데이트 된 랭킹 데이터를 받아오게 됩니다.
+
+    랭킹은 10 위까지 나오게 되며 밑의 형식으로 구성 됩니다.
+
+    cache_data = [{'nickname': 'mindi', 'score': 97}, {'nickname': 'user_1', 'score': 53},
+              {'nickname': 'user_3', 'score': 36}, {'nickname': 'user_4', 'score': 13},
+             ... ]
+
+    """
+
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        """ranking get func
+        access token에서 user id를 추출, 해당 id로 top100과 자기자신의 ranking을 반환
+        """
+        # cache_data = cache.get("ranking")
+        # cache_data = get_rank()
+        ranking_result = []
+        user = request.user.nickname
+        cache_data = [
+            {"nickname": "mindi", "score": 97},
+            {"nickname": "user_1", "score": 53},
+            {"nickname": "user_3", "score": 36},
+            {"nickname": "user_4", "score": 23},
+            {"nickname": "user_7", "score": 20},
+            {"nickname": "user_10", "score": 15},
+            {"nickname": "user_5", "score": 13},
+            {"nickname": "user_21", "score": 12},
+            {"nickname": "user_36", "score": 10},
+            {"nickname": "user_49", "score": 5},
+        ]
+
+        topRankerInfoList = cache_data[0:5]
+        try:
+            location = [i for i, t in enumerate(cache_data) if t["nickname"] == user]
+            myRankingInfo = location[0] + 1
+        except:
+            myRankingInfo = "unrank"
+            pass
+
+        else:
+            print(f"{user}님은 랭커입니다")
+
+        ranking_result.append(f"topRankerInfoList : {topRankerInfoList}")
+        ranking_result.append(f"myRankingInfo:{myRankingInfo}")
+        ranking_response = Response(ranking_result, status=status.HTTP_200_OK)
+
+        return ranking_response
