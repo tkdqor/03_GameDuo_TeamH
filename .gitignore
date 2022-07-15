@@ -383,4 +383,9 @@ zsdoc/data
 
 my_settings.py
 
+# ec2
 static/
+
+server.pid
+nginx/django.crt
+nginx/django.key
