@@ -35,7 +35,7 @@ DJANGO_APPS = [
     "django.contrib.staticfiles",
 ]
 
-THIRD_PARTY_APPS = ["rest_framework", "rest_framework_simplejwt"]
+THIRD_PARTY_APPS = ["rest_framework", "rest_framework_simplejwt", "rest_framework_simplejwt.token_blacklist"]
 
 PROJECT_APPS = [
     "user",

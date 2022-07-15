@@ -20,7 +20,7 @@ class UserAdmin(BaseUserAdmin):
     form = UserChangeForm
     add_form = UserCreationForm
 
-    list_display = ("nickname", "is_admin")
+    list_display = ("id", "nickname", "is_admin")
     list_filter = ("is_admin",)
     fieldsets = (
         (None, {"fields": ("nickname", "password")}),
