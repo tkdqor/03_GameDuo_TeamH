@@ -1,11 +1,12 @@
 from django.contrib.auth import authenticate, login, logout
 from rest_framework import status
-from rest_framework.permissions import AllowAny, IsAdminUser
+from rest_framework.generics import GenericAPIView
+from rest_framework.permissions import AllowAny, IsAdminUser, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_simplejwt.views import TokenObtainPairView
 
-from user.jwt_claim_serializer import GameTokenObtainPairSerializer
+from user.jwt_claim_serializer import GameTokenObtainPairSerializer, RefreshTokenSerializer
 from user.models import User as UserModel
 from user.serializers import UserListDetailSerializer, UserListSerializer, UserSigninSerializer, UserSignupSerializer
 
@@ -15,7 +16,7 @@ class UserSignupApiView(APIView):
     """
     Assignee : 훈희
 
-    회원가입 view 입니다.
+    post : 회원가입
     회원가입시 입력 data 타입 json 구조는 밑과 같습니다.
     {
         "nickname" : "test1",
@@ -35,19 +36,23 @@ class UserSignupApiView(APIView):
             return Response({"messages": "가입 실패"}, status=status.HTTP_400_BAD_REQUEST)
 
 
-# /users/signin
-class UserSigninApiView(APIView):
+# /users/login
+class LoginView(APIView):
     """
     Assignee : 훈희
 
     post : 로그인
+    로그인 할때 access token과 refresh token을 함께 가져옴
 
-    get : 회원 단건 조회 기능입니다.
     로그인시 입력 data 타입 json 구조는 밑과 같습니다.
     {
         "nickname" : "test1",
         "password" : "root1234"
     }
+
+    delete : 로그아웃
+    테스트등 개발 환경에서 사용하기 위한 간단한 로그아웃 기능
+    토큰을 반납하지 않고 로그아웃이 됩니다.
 
     """
 
@@ -82,49 +87,81 @@ class UserSigninApiView(APIView):
     def delete(self, request):
         user = request.user
         logout(request)
-        return Response(f"로그아웃 되었습니다.{user}님 안녕히가세요!")
+        return Response(f"토큰을 유지하고 로그아웃 되었습니다.{user}님 안녕히가세요!")
+
+
+# /users/logout
+class LogoutView(GenericAPIView):
+    """
+     Assignee : 훈희
+
+     post : 로그아웃
+     로그아웃 하면서 토큰을 같이 반납합니다.
+     기존의 delete method를 사용하지 않으며 post 방식으로 refresh token을
+     보내주게 됩니다.
+
+     로그인시 입력 data 타입 json 구조는 밑과 같습니다.
+    {
+       "refresh": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTY1NzkwMzY5MywiaWF0IjoxNjU3ODE3MjkzLCJqdGkiOiJkMjdiMGUxNDU1NTc0NWRjYWRiOTU4YzA1YjA4ZGEzNiIsInVzZXJfaWQiOjgsImlkIjo4LCJuaWNrbmFtZSI6InRlc3Q0MiJ9.iqLPbGoFxaFbp0yXvsKjBwgT7EF29I6URi7O05j2YVg"
+    }
+
+    """
+
+    serializer_class = RefreshTokenSerializer
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, *args):
+        refresh = self.get_serializer(data=request.data)
+        refresh.is_valid(raise_exception=True)
+        refresh.save()
+
+        user = request.user
+        logout(request)
+
+        return Response(f"토큰을 반납하고 로그아웃 되었습니다.{user}님 안녕히가세요!", status=status.HTTP_204_NO_CONTENT)
 
 
 # /users/
 class UserListAPIView(APIView):
+    """
+    Assignee : 훈희
+
+    get : 회원 전체 조회
+    플레이어 전체 목록이 나옵니다.
+    해당 내용은 admin 유저만 확인 가능합니다.
+
+    """
+
     permission_classes = [IsAdminUser]
     user_serializer = UserListSerializer
 
     def get(self, request):
-        """
-        Assignee : 훈희
-
-        플레이어 전체 목록이 나옵니다.
-        해당 내용은 admin 유저만 확인 가능합니다.
-
-        """
         all_user = UserModel.objects.all().order_by("last_login")
         serializer = UserSigninSerializer(all_user, many=True)
 
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
-# /api/gametoken
+# /users/api/gametoken
 class GameTokenObtainPairView(TokenObtainPairView):
+    """
+    Assignee : 훈희
+
+    커스텀 된 토큰 시리얼라이저 테스트용 View입니다.
+
+    """
+
     serializer_class = GameTokenObtainPairSerializer
 
 
+# /users/<user_id>
 class UserListDetailAPIView(APIView):
     """
     Assignee : 훈희
 
-    permission = 모두 가능
-    Http method = GET
-    GET : 유저 단건 조회
-
-    response
-    {
-        totalScore:number,
-            bossRaidHistory: [
-            { raidRecordId:number, score:number, enterTime:string, endTime:string },
-            //..
-        ]
-    }
+    get : 유저 단건 조회
+    totalScore와 bossRaidHistory가 표시되는 유저 단건 조회 입니다.
+    밑의 response 구조에 맞춘 유저 단건 조회 입니다.
 
     """
 
