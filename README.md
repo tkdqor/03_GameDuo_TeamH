@@ -211,7 +211,7 @@ Lint
 
 ## 🌎 배포
 Docker, NginX, uWSGI를 사용하여 AWS EC2 서버에 배포하였습니다. <br>
-➡️ [서비스 주소](http://3.34.126.200/) <br>
+➡️ [서비스 주소](http://3.34.126.200/users/login) <br>
 
 ### 🖼 서비스 아키텍처
 ![image](https://user-images.githubusercontent.com/96563183/179229678-0eeca455-3776-4d8a-a6af-2f2a3c7f53a1.png)
