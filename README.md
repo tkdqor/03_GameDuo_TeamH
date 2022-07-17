@@ -192,6 +192,7 @@ Lint
 <img width="889" alt="image" src="https://user-images.githubusercontent.com/89897944/179220550-ca4c9498-d0aa-4440-8b93-d936cf01ee74.png">
 
 - 보스레이드 종료
+<img width="752" alt="스크린샷 2022-07-17 오후 10 14 31" src="https://user-images.githubusercontent.com/76423946/179400113-bad5850d-1fa1-4a40-ae5d-82426f0bb575.png">
 
 - 랭킹 확인
 <img width="1053" alt="image" src="https://user-images.githubusercontent.com/89897944/179220633-fa53af23-38b1-48ac-9eef-93664112f734.png">
