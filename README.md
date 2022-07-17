@@ -122,6 +122,7 @@
 
 - ETC<br>
   <img src="https://img.shields.io/badge/Git-F05032?style=flat&logo=Git&logoColor=white"/>
+  <img src="https://img.shields.io/badge/GithubActions-2088FF?style=flat&logo=Githubactions&logoColor=white"/>
 
 <br>
 
