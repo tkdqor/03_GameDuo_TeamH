@@ -1,8 +1,31 @@
 # 03_GameDuo_TeamH
 
 ## ✅ 프로젝트 개요
-- 게임의 구조를 알아보는 프로젝트입니다. 기본적인 로그인 로그아웃 기능을 제공하며 특정 게임공간을 여러명의 유저들이 함께 사용할때 충돌이 일어나지 않게 설계하였습니다. <br>
-- 기능으로는 레이드의 시작, 종료, 레이드 상태조회, 랭킹조회등을 제공합니다. <br>
+- 게임의 구조를 알아보는 프로젝트입니다. 
+- JWT토큰을 사용하여 회원가입, 로그인, 로그아웃 기능을 제공합니다.
+- redis queue를 이용해 특정 게임을 여러명의 유저들이 함께 사용할때 충돌이 일어나지 않게 설계하였습니다.
+- 레이드의 시작, 종료, 레이드 상태조회, 랭킹조회등을 제공합니다.
+- 랭킹조회시 redis 캐싱기능을 이용해 데이터베이스로의 직접적인 호출을 최소화 하였습니다.
+
+<br>
+
+## 🛠 사용 기술
+- API<br>
+![python badge](https://img.shields.io/badge/Python-3.9-%233776AB?&logo=python&logoColor=white)
+![django badge](https://img.shields.io/badge/Django-4.0.6-%23092E20?&logo=Django&logoColor=white)
+
+- DB<br>
+![mysql badge](https://img.shields.io/badge/MySQL-5.7.38-%234479A1?&logo=MySQL&logoColor=white)
+![redis badge](https://img.shields.io/badge/redis-7.0-red?logo=redis&logoColor=white)
+- 배포<br>
+![aws badge](https://img.shields.io/badge/AWS-EC2-%23FF9900?&logo=Amazon%20EC2&logoColor=white)
+![docker badge](https://img.shields.io/badge/Docker-20.10.17-%232496ED?&logo=Docker&logoColor=white)
+![nginx badge](https://img.shields.io/badge/Nginx-1.23.0-%23009639?logo=NGINX&locoColor=white)
+![uwsgi badge](https://img.shields.io/badge/uWSGI-2.0-brightgreen)
+
+- ETC<br>
+  <img src="https://img.shields.io/badge/Git-F05032?style=flat&logo=Git&logoColor=white"/>
+  <img src="https://img.shields.io/badge/GithubActions-2088FF?style=flat&logo=Githubactions&logoColor=white"/>
 
 <br>
 
@@ -103,26 +126,6 @@
 2. 관리자와 레이드를 시작한 본인만 보스레이드를 종료 할 수 있습니다.
 </div>
 </details>
-
-<br>
-
-## 🛠 사용 기술
-- API<br>
-![python badge](https://img.shields.io/badge/Python-3.9-%233776AB?&logo=python&logoColor=white)
-![django badge](https://img.shields.io/badge/Django-4.0.6-%23092E20?&logo=Django&logoColor=white)
-
-- DB<br>
-![mysql badge](https://img.shields.io/badge/MySQL-5.7.38-%234479A1?&logo=MySQL&logoColor=white)
-![redis badge](https://img.shields.io/badge/redis-7.0-red?logo=redis&logoColor=white)
-- 배포<br>
-![aws badge](https://img.shields.io/badge/AWS-EC2-%23FF9900?&logo=Amazon%20EC2&logoColor=white)
-![docker badge](https://img.shields.io/badge/Docker-20.10.17-%232496ED?&logo=Docker&logoColor=white)
-![nginx badge](https://img.shields.io/badge/Nginx-1.23.0-%23009639?logo=NGINX&locoColor=white)
-![uwsgi badge](https://img.shields.io/badge/uWSGI-2.0-brightgreen)
-
-- ETC<br>
-  <img src="https://img.shields.io/badge/Git-F05032?style=flat&logo=Git&logoColor=white"/>
-  <img src="https://img.shields.io/badge/GithubActions-2088FF?style=flat&logo=Githubactions&logoColor=white"/>
 
 <br>
 
